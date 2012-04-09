@@ -49,9 +49,10 @@ public class FollowersIDsToScreenNames {
 			return;
 		}
 		
-		// Read the available information from the file and populate the HashMap
+		// Read the available information from the file and populate the 
+		// HashMap
 		try {
-			
+
 			File file = new File(args[0]);
 			
 			if (file.exists()) {
@@ -75,11 +76,11 @@ public class FollowersIDsToScreenNames {
 			} else {
 				System.err.println("File " + args[0] + "not found");
 			}
-			
+
 		} catch (IOException e) {
-            e.printStackTrace();
+			e.printStackTrace();
 		}
-		
+
 		System.out.println("Followers file loaded, " + nIDsResolved + 
 				" IDs out of " + nIDsTotal + " are associated");
 		
@@ -122,27 +123,27 @@ public class FollowersIDsToScreenNames {
 					urlInput.close();
 					
 					// Get user's screen_name
-	        		value = ((JSONObject) jsonArray.get(0) ).get("screen_name")
-	        												.toString();
-	        		
-	        		// Overwrite the previous value associated to this key
-	        		idToScreenName.put(key, value);
-	        		
-	        		nIDsNew++;
+					value = ((JSONObject) jsonArray.get(0) ).get("screen_name")
+								       .toString();
+
+					// Overwrite the previous value associated to this key
+					idToScreenName.put(key, value);
+
+					nIDsNew++;
 					
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
-	    		} catch (IOException e) {
-	    			System.out.println("Limit reached, " + nIDsNew + 
-	    					" new IDs associated, saving HashMap ...");
+				} catch (IOException e) {
+					System.out.println("Limit reached, " + nIDsNew + 
+						" new IDs associated, saving HashMap ...");
 					saveIDsToScreenNames(args[0]);
 					return;
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-				
+
 			}
-			
+
 		}
 		
 		// All the IDs have been associated
@@ -154,7 +155,7 @@ public class FollowersIDsToScreenNames {
 
 		if (DEBUG_OUT) {
 			System.out.println(">>>> State of the HashMap before saving");
-			
+
 			// Display the state of the HashMap
 			Iterator<String> it = idToScreenName.keySet().iterator();
 			while (it.hasNext()) {
@@ -168,7 +169,7 @@ public class FollowersIDsToScreenNames {
 		}
 		
 		try {
-			File file = new File(fname);	
+			File file = new File(fname);
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 			
 			// Write the associations in the file
@@ -185,8 +186,7 @@ public class FollowersIDsToScreenNames {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		 
-		
+
 	}
 
 }
