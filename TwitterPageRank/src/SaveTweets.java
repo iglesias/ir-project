@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Date : 12/04/2012                                                           *
  * Description : This class download the tweets of a group of followers given  *
- *               a file with the relatinship <ID,Screen_name>.                 *
+ *               a file with the relationship <ID,Screen_name>.                *
  *                                                                             *
- * Execution : SaveTweets <UniverseName>                                       *     
+ * Execution : SaveTweets <screennamesfile>                                    *     
  * Format ScreenNameFile : screennames_UniverseName_timestamp.txt              *
  *                                                                             *
  * Improvements : 1 - Save instead of (null/true/false) the number of tweets.  *
