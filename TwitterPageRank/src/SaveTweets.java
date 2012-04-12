@@ -1,11 +1,14 @@
-/* Date : 9/04/2012                                                            *
- * Description : This class download the tweets of a group of followers        *
- *               given in an ArrayList.                                        *
+/*******************************************************************************
+ * Date : 12/04/2012                                                           *
+ * Description : This class download the tweets of a group of followers given  *
+ *               a file with the relatinship <ID,Screen_name>.                 *
  *                                                                             *
- * Improvements : I am saving the  last @user, if instead of that I save all,  *             
- *                later I could remove from the  original array all the users  *
- *                I have  already  done  and  then works with the rest of the  *
- *                array.                                                       *
+ * Execution : SaveTweets <UniverseName>                                       *     
+ * Format ScreenNameFile : screennames_UniverseName_timestamp.txt              *
+ *                                                                             *
+ * Improvements : 1 - Save instead of (null/true/false) the number of tweets.  *
+ *                2 - Allow to try to redownload unauthorized past requests.   *
+ *                                                                             * 
  *******************************************************************************/
 
 import java.io.BufferedReader;
@@ -23,19 +26,23 @@ import java.util.Iterator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
- * @author Bernard Hernandez Perez
+ * @author Bernard Hernández Pérez, Fernando José Iglesias García
  */
 
 public class SaveTweets {
-
+	
 	/**
-	 * Auxiliary structure to keep track of the IDs that have already been 
-	 * associated with a screen name and those that have not
+	 * Max number of tweets we want to download for one user.
 	 */
-	public static HashMap<String, Boolean> idToNumberTweets = 
+	public static final int nTweetsToDownload = 50;
+		
+	/**
+	 * Auxiliary structure to keep track of the IDs whose tweets have already been 
+	 * downloaded or we cannot download because their are private.
+	 */
+	public static HashMap<String, Boolean> ScreenNameToNumberTweets = 
 			new HashMap<String, Boolean>();
 
 	private static int nTweetsResolved = 0;
@@ -44,7 +51,12 @@ public class SaveTweets {
 	
 	private static int nTweetsNew = 0;
 	
-	private static int nTweetsToDownload = 50;
+	private static int nTweetsUnauthorized = 0;
+	
+	/**
+	 * Important directories.
+	 */
+	public static String universeDirectory = "TwitterPageRank/data/";
 	
 	/**
 	 * Show some debugging information
@@ -52,21 +64,25 @@ public class SaveTweets {
 	public static final boolean DEBUG_OUT = false;
 	
 	/**
-	 * TODO explanation
+	 * Download the tweets for all the users of a given file with the
+	 * relationship <ID,Screen_Name>.
 	 */
 	public static void main(String[] args) {
 
+		// Check correct number of input parameters.
 		if (args.length < 1) {
-			System.err.println("usage: SaveTweets " + 
-					"<ScreenNamesFile>");
+			System.err.println("usage: SaveTweets <ScreenNamesFile>");
 			return;
 		}
+		
+		// Get parameters.
+		universeDirectory += args[0].split("_")[1];
 		
 		// Read the available information from the file and populate the 
 		// HashMap
 		try {
 
-			File file = new File(args[0]);
+			File file = new File(universeDirectory + "/" + args[0]);
 			
 			if (file.exists()) {
 				
@@ -76,10 +92,15 @@ public class SaveTweets {
 					String[] tokens = line.split(";");
 					
 					if (tokens.length < 2) {
-						idToNumberTweets.put(tokens[0], false);
+						ScreenNameToNumberTweets.put(tokens[0], null);
 					} else {
-						idToNumberTweets.put(tokens[0], true);
-						nTweetsResolved++;
+						if (tokens[1].equals("false")) {
+							ScreenNameToNumberTweets.put(tokens[0], false);
+							nTweetsUnauthorized++;
+						} else {
+							ScreenNameToNumberTweets.put(tokens[0], true);
+							nTweetsResolved++;
+						}
 					}
 					
 					nTweetsTotal++;
@@ -87,41 +108,43 @@ public class SaveTweets {
 				br.close();
 				
 			} else {
-				System.err.println("File " + args[0] + "not found");
+				System.err.println("File " + universeDirectory + "/" +
+			                       args[0] + " not found!!");
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		System.out.println("Followers file loaded, " + nTweetsResolved + 
-				" IDs out of " + nTweetsTotal + " are associated");
+		System.out.println("Followers ScreenName file loaded, " + nTweetsResolved + 
+				" resolved IDs, " + nTweetsUnauthorized + " unauthorized IDs, out of " +
+				nTweetsTotal + " IDs in " + args[0].split("_")[1] + ".");
 		
 		if (DEBUG_OUT) {
 			System.out.println(">>>> State of the HashMap after reading");
 			
 			// Display the state of the HashMap
-			Iterator<String> it = idToNumberTweets.keySet().iterator();
+			Iterator<String> it = ScreenNameToNumberTweets.keySet().iterator();
 			while (it.hasNext()) {
 				String key = it.next();
-				boolean value = idToNumberTweets.get(key);
-				if (value)
+				Boolean value = ScreenNameToNumberTweets.get(key);
+				if (value!=null)
 					System.out.println(key + " -> " + value);
 				else
 					System.out.println(key);
 			}
 		}
 		
-		// Get the screen names for the IDs that have not been associated yet
-		Iterator<String>  it = idToNumberTweets.keySet().iterator();
+		// Get the Tweets for the IDs that have not been done yet.
+		Iterator<String>  it = ScreenNameToNumberTweets.keySet().iterator();
 		while (it.hasNext()) {
 			
 			String key = it.next();
-			boolean value = idToNumberTweets.get(key);
+			Boolean value = ScreenNameToNumberTweets.get(key);
 			
-			if (!value) {
+			if (value==null) {
 				
-				// Get the screen_name associated to this follower ID
+				// Get the JSON Array associated to this follower Screen_name.
 				
 				try {
 					// Get user information in .json
@@ -136,40 +159,43 @@ public class SaveTweets {
 			    	// DEBUG : Knowing the number of tweets.
 			    	if (DEBUG_OUT) {
 					    JSONArray jsonArray = new JSONArray(content);
-					    System.out.println("User:" + key + " nTweets:" + jsonArray.length());
+					    System.out.println(">>>> User:" + key + " nTweets:" + jsonArray.length());
 			    	}
 				    
 			    	StringBuffer urlOutput = new StringBuffer(content); 
 			    	
-					// Save it in a file.
+					// Save it in a file (user.json).
 					try {
-						File file = new File("TweetsList/" + key + ".json");
+						File file = new File(universeDirectory +"/TweetsList/" + key + ".json");
 						BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 						bw.write(urlOutput.toString());		
 						bw.close();			
 					} catch (IOException e) {
-						System.out.println("Error saving the Tweetsfile.");
+						System.out.println("Error saving " + key + ".txt.");
 						e.printStackTrace();
 					}
 			    						
 				    urlInput.close();
 					
 					// Overwrite the previous value associated to this key
-					idToNumberTweets.put(key, true);
+				    ScreenNameToNumberTweets.put(key, true);
 
 					nTweetsNew++;
 				} catch (FileNotFoundException e) {
 					System.out.println("ID " + key + " not found!!");
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
-				} catch (IOException e) {
-					System.out.println("Limit reached, " + nTweetsNew + 
-						" new IDs associated, saving HashMap ...");
-					saveIDsToScreenNames(args[0]);
-					//e.printStackTrace();
-					System.out.println(e.getMessage().split(" ")[5]);
+				} catch (IOException e) {					
+					// Get and print error info.
+					int code = Integer.parseInt(e.getMessage().split(" ")[5]);
+					boolean exit = HTTPExceptionHandler(code,key);
 					System.err.println(e.getMessage());
-					e.printStackTrace();
+					
+					if (exit) {
+						saveScreenNamesToTweets(universeDirectory + "/" + args[0]);
+						return;
+					}
+
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -180,20 +206,23 @@ public class SaveTweets {
 		
 		// All the IDs have been associated
 		System.out.println("Assocation complete! Saving HashMap ...");
-		saveIDsToScreenNames(args[0]);
+		saveScreenNamesToTweets(universeDirectory + "/" + args[0]);
 	}
 
-	private static void saveIDsToScreenNames(String fname) {
+	/**
+	 * Method to write the HashSet<ScreenName,boolean> into a file.
+	 */
+	private static void saveScreenNamesToTweets(String fname) {
 
 		if (DEBUG_OUT) {
 			System.out.println(">>>> State of the HashMap before saving");
 
 			// Display the state of the HashMap
-			Iterator<String> it = idToNumberTweets.keySet().iterator();
+			Iterator<String> it = ScreenNameToNumberTweets.keySet().iterator();
 			while (it.hasNext()) {
 				String key = it.next();
-				boolean value = idToNumberTweets.get(key);
-				if (value)
+				Boolean value = ScreenNameToNumberTweets.get(key);
+				if (value!=null)
 					System.out.println(key + " -> " + value);
 				else
 					System.out.println(key);
@@ -205,11 +234,11 @@ public class SaveTweets {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 			
 			// Write the associations in the file
-			Iterator<String> it = idToNumberTweets.keySet().iterator();
+			Iterator<String> it = ScreenNameToNumberTweets.keySet().iterator();
 			while (it.hasNext()) {
 				String key = it.next();
-				boolean value = idToNumberTweets.get(key);
-				if (value)
+				Boolean value = ScreenNameToNumberTweets.get(key);
+				if (value!=null)
 					bw.write(key + ";" + value + ((it.hasNext() ? "\n" : "")));
 				else
 					bw.write(key + ";" + ((it.hasNext() ? "\n" : "")));
@@ -220,28 +249,28 @@ public class SaveTweets {
 		}
 
 	}
+	
+	/**
+	 * Method to control all posiblle HTTP errors that could happen.
+	 */
+	private static boolean HTTPExceptionHandler(int code, String key){
+		boolean exit = false;
+		switch (code){
+			case 401 : { System.out.println(code + " : Download " + key + 
+				         " tweets is unauthorized.");
+					     ScreenNameToNumberTweets.put(key,false);
+						 nTweetsUnauthorized++;
+			           } break;
+			case 400 : { System.out.println(code+ " : Limit reached, " + 
+				         nTweetsNew + " new IDs associated, " + nTweetsUnauthorized +
+				         " unauthorized IDs, saving HashMap ...");
+						 exit = true;
+			           } break;
+			default :  { System.err.println("New error : " + code + " has appeared.");
+			             break;
+			           }
+		}
+		return exit;
+	}
 
 }
-
-
-	/**
-	 * Function that loads the tweets of @user that are in a file.
-	 
-	@SuppressWarnings("finally")
-	public String loadUserTweets(String name){
-		String content = "";
-		try {
-			File file = new File(this.path + "/" + name + ".txt");
-			
-			if (file.exists()){
-				BufferedReader br = new BufferedReader(new FileReader(file));
-				content = br.readLine();
-				br.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			return content;
-		}
-	}	
-	*/
