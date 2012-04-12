@@ -42,7 +42,7 @@ public class SaveTweets {
 	 * Auxiliary structure to keep track of the IDs whose tweets have already been 
 	 * downloaded or we cannot download because their are private.
 	 */
-	public static HashMap<String, Boolean> ScreenNameToNumberTweets = 
+	public static HashMap<String, Boolean> screenNameToNumberTweets = 
 			new HashMap<String, Boolean>();
 
 	private static int nTweetsResolved = 0;
@@ -92,13 +92,13 @@ public class SaveTweets {
 					String[] tokens = line.split(";");
 					
 					if (tokens.length < 2) {
-						ScreenNameToNumberTweets.put(tokens[0], null);
+						screenNameToNumberTweets.put(tokens[0], null);
 					} else {
 						if (tokens[1].equals("false")) {
-							ScreenNameToNumberTweets.put(tokens[0], false);
+							screenNameToNumberTweets.put(tokens[0], false);
 							nTweetsUnauthorized++;
 						} else {
-							ScreenNameToNumberTweets.put(tokens[0], true);
+							screenNameToNumberTweets.put(tokens[0], true);
 							nTweetsResolved++;
 						}
 					}
@@ -124,10 +124,10 @@ public class SaveTweets {
 			System.out.println(">>>> State of the HashMap after reading");
 			
 			// Display the state of the HashMap
-			Iterator<String> it = ScreenNameToNumberTweets.keySet().iterator();
+			Iterator<String> it = screenNameToNumberTweets.keySet().iterator();
 			while (it.hasNext()) {
 				String key = it.next();
-				Boolean value = ScreenNameToNumberTweets.get(key);
+				Boolean value = screenNameToNumberTweets.get(key);
 				if (value!=null)
 					System.out.println(key + " -> " + value);
 				else
@@ -136,11 +136,11 @@ public class SaveTweets {
 		}
 		
 		// Get the Tweets for the IDs that have not been done yet.
-		Iterator<String>  it = ScreenNameToNumberTweets.keySet().iterator();
+		Iterator<String>  it = screenNameToNumberTweets.keySet().iterator();
 		while (it.hasNext()) {
 			
 			String key = it.next();
-			Boolean value = ScreenNameToNumberTweets.get(key);
+			Boolean value = screenNameToNumberTweets.get(key);
 			
 			if (value==null) {
 				
@@ -178,7 +178,7 @@ public class SaveTweets {
 				    urlInput.close();
 					
 					// Overwrite the previous value associated to this key
-				    ScreenNameToNumberTweets.put(key, true);
+				    screenNameToNumberTweets.put(key, true);
 
 					nTweetsNew++;
 				} catch (FileNotFoundException e) {
@@ -218,10 +218,10 @@ public class SaveTweets {
 			System.out.println(">>>> State of the HashMap before saving");
 
 			// Display the state of the HashMap
-			Iterator<String> it = ScreenNameToNumberTweets.keySet().iterator();
+			Iterator<String> it = screenNameToNumberTweets.keySet().iterator();
 			while (it.hasNext()) {
 				String key = it.next();
-				Boolean value = ScreenNameToNumberTweets.get(key);
+				Boolean value = screenNameToNumberTweets.get(key);
 				if (value!=null)
 					System.out.println(key + " -> " + value);
 				else
@@ -234,10 +234,10 @@ public class SaveTweets {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 			
 			// Write the associations in the file
-			Iterator<String> it = ScreenNameToNumberTweets.keySet().iterator();
+			Iterator<String> it = screenNameToNumberTweets.keySet().iterator();
 			while (it.hasNext()) {
 				String key = it.next();
-				Boolean value = ScreenNameToNumberTweets.get(key);
+				Boolean value = screenNameToNumberTweets.get(key);
 				if (value!=null)
 					bw.write(key + ";" + value + ((it.hasNext() ? "\n" : "")));
 				else
@@ -258,7 +258,7 @@ public class SaveTweets {
 		switch (code){
 			case 401 : { System.out.println(code + " : Download " + key + 
 				         " tweets is unauthorized.");
-					     ScreenNameToNumberTweets.put(key,false);
+					     screenNameToNumberTweets.put(key,false);
 						 nTweetsUnauthorized++;
 			           } break;
 			case 400 : { System.out.println(code+ " : Limit reached, " + 
