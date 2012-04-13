@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.simple.JSONValue;
 
 import com.twitter.Extractor;
+import org.apache.commons.io.FileUtils;
 
 
 public class TweetParser {
@@ -19,18 +22,16 @@ public class TweetParser {
 	// Constant (better put as an input parameter).
 	private static String path = "C:\\Users\\Jack\\Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\EmilJack\\tweets";
 	
+	/** The graph as a hashtables. */
+    public static HashMap<String, ArrayList<String>> index = new HashMap<String,ArrayList<String>>();
+    public static HashMap<String, ArrayList<String>> index2 = new HashMap<String,ArrayList<String>>();
+	
 	public static void main(String[] args) {
-		
 		// Variables.
     	Extractor extractor = new Extractor();   // To extract @user, #hashtag ...		
     	File dokDir = new File(path);
     	String[] fs = dokDir.list();
-		ArrayList<String> userTweets = new ArrayList<String>();
-		
-		/** The graph as a hashtables. */
-	    HashMap<String,ArrayList<String>> index = new HashMap<String,ArrayList<String>>();
-	    HashMap<String, ArrayList<String>> index2 = new HashMap<String,ArrayList<String>>();
-		
+		ArrayList<String> userTweets = new ArrayList<String>();	
     	
     	//Read all the files from /Users/ directory
     	if (dokDir.canRead()){
@@ -75,16 +76,38 @@ public class TweetParser {
 		    	        links.add(name);
 		    	        
 		    	    }
-		    	    index.put(userTweets.get(i).replace(".txt", ""), links);
-		    	    System.out.println();
-		    	    //Print out the info in hashtable.
+		    	    index.put(fs[i].replace(".txt", ""), links);
+		    	    System.out.println();		    	    
 		    	}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	
-    	} 
+		}
+    	}
+    	String serialized = JSONValue.toJSONString(index);
+    	try {
+			FileUtils.writeStringToFile(new File("C:\\Users\\Jack\\Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\EmilJack\\graph\\graph"), serialized);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	System.out.println();
+    	Object[] keylist = getDictionary();
+    	for (int k=0; k<keylist.length; k++){    		
+    		System.out.println(keylist[k].toString() + ": " + index.get(keylist[k].toString()));    		
+    	}
 	}	
+	
+	/**
+     *  Returns the dictionary (the set of terms in the index)
+     *  as a Object.
+     */
+    @SuppressWarnings("rawtypes")
+	public static Object[] getDictionary() {
+    	Set keys = index.keySet();
+	   	Object[] keylist= keys.toArray();    	
+    	return keylist;
+    }
 	
 	@SuppressWarnings("finally")
 	public static String loadUserTweets(String name){
