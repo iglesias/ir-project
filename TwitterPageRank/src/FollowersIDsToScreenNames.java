@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -130,7 +131,8 @@ public class FollowersIDsToScreenNames {
 					idToScreenName.put(key, value);
 
 					nIDsNew++;
-					
+				} catch (FileNotFoundException e) {
+					System.out.println("ID " + key + " not found!!");
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
