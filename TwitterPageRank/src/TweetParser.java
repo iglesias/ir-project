@@ -72,11 +72,11 @@ public class TweetParser {
 		    		namesReferenced = extractor.extractMentionedScreennames(jsonObject.getString("text"));
 		    		ArrayList<String> links = new ArrayList();
 		    	    for (String name : namesReferenced) {
-		    	        System.out.print(name + ",");		    	        
-		    	        links.add(name);
+		    	        System.out.print(name);
+		    	        if (name!="") links.add(name);
 		    	        
 		    	    }
-		    	    index.put(fs[i].replace(".txt", ""), links);
+		    	    if (!links.isEmpty()) index.put(fs[i].replace(".txt", ""), links);
 		    	    System.out.println();		    	    
 		    	}
 		} catch (JSONException e) {
