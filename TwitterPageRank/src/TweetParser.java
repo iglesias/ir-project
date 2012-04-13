@@ -27,9 +27,8 @@ public class TweetParser {
     	String[] fs = dokDir.list();
 		ArrayList<String> userTweets = new ArrayList<String>();
 		
-		/** The graph as a hashtable. */
+		/** The graph as a hashtables. */
 	    HashMap<String,ArrayList<String>> index = new HashMap<String,ArrayList<String>>();
-	    
 	    HashMap<String, ArrayList<String>> index2 = new HashMap<String,ArrayList<String>>();
 		
     	
@@ -38,11 +37,9 @@ public class TweetParser {
     		if (dokDir.isDirectory()){
     			if ( fs != null ) {
     			    for ( int i=0; i<fs.length; i++ ) {
-   			    	// Read the file @user.txt.
-    			    //System.out.println(fs[i]);	
-    			    	
-    			    userTweets.add(loadUserTweets(fs[i]).toString());
-    			    System.out.println(userTweets.get(i));
+    			    	// Read the files in the directory	
+    			    	userTweets.add(loadUserTweets(fs[i]).toString());
+    			    	System.out.println(userTweets.get(i));
     			    }
     			}
     		}
@@ -57,11 +54,12 @@ public class TweetParser {
 	         	JSONArray jsonArray;
 				jsonArray = new JSONArray(userTweets.get(i));
 	            
-				System.out.print("Reading Bernard_bahp tweets.");
+				System.out.print("Reading " + fs[i].toString() + " tweets.");
 	    	    System.out.println(" (Total : " + jsonArray.length() + ")");
 	    	 
 		    	// Look the @user references in each of the tweets.
 		    	List<String> namesReferenced;
+		    	
 		    	for (int j = 0; j < jsonArray.length(); j++) {
 		    	
 		    		System.out.print("Tweet " + j + " : ");
@@ -71,16 +69,20 @@ public class TweetParser {
 		    		
 		    		// Get the field "Text" in that tweet. (also are others "id", "created_at", ...").
 		    		namesReferenced = extractor.extractMentionedScreennames(jsonObject.getString("text"));
+		    		ArrayList<String> links = new ArrayList();
 		    	    for (String name : namesReferenced) {
-		    	        System.out.print(name + ",");
-		    	    }	
+		    	        System.out.print(name + ",");		    	        
+		    	        links.add(name);
+		    	        
+		    	    }
+		    	    index.put(userTweets.get(i).replace(".txt", ""), links);
 		    	    System.out.println();
+		    	    //Print out the info in hashtable.
 		    	}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-    		
+		}	
     	} 
 	}	
 	
