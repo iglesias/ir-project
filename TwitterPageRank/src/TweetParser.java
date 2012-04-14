@@ -16,22 +16,35 @@ import org.json.simple.JSONValue;
 import com.twitter.Extractor;
 import org.apache.commons.io.FileUtils;
 
+import com.larvalabs.megamap.MegaMapException;
+import com.larvalabs.megamap.MegaMapManager;
+import com.larvalabs.megamap.MegaMap;
 
 public class TweetParser {
 
 	// Constant (better put as an input parameter).
-	private static String path = "C:\\Users\\Jack\\Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\EmilJack\\tweets";
+	private static String path = "C:\\Users\\Jack\\Documents\\My Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\EmilJack\\tweets";
 	
 	/** The graph as a hashtables. */
-    public static HashMap<String, ArrayList<String>> index = new HashMap<String,ArrayList<String>>();
-    public static HashMap<String, ArrayList<String>> index2 = new HashMap<String,ArrayList<String>>();
+    public static HashMap<String, ArrayList<LinksEntry>> index2 = new HashMap<String, ArrayList<LinksEntry>>();
 	
+    private static MegaMap index;
+    private static MegaMapManager manager;
+    
 	public static void main(String[] args) {
 		// Variables.
     	Extractor extractor = new Extractor();   // To extract @user, #hashtag ...		
     	File dokDir = new File(path);
     	String[] fs = dokDir.list();
 		ArrayList<String> userTweets = new ArrayList<String>();	
+		
+		try {
+		    manager = MegaMapManager.getMegaMapManager();
+		    index = manager.createMegaMap( "graph", path.replace("\\tweets", "\\graph"), true, false );
+		}
+		catch ( Exception e ) {
+		    e.printStackTrace();
+		}
     	
     	//Read all the files from /Users/ directory
     	if (dokDir.canRead()){
@@ -45,9 +58,6 @@ public class TweetParser {
     			}
     		}
     	}
-    	
-		//String userTweets = loadUserTweets("Bernard_bahp");
-    	//String userTweets = loadUserTweets(directory);
 			
 		// Jason array with JSon Object (each object would be one tweet).
     	for (int i=0; i<fs.length; i++){
@@ -59,8 +69,8 @@ public class TweetParser {
 	    	    System.out.println(" (Total : " + jsonArray.length() + ")");
 	    	 
 		    	// Look the @user references in each of the tweets.
-		    	List<String> namesReferenced;
-		    	
+		    	List<String> namesReferenced;  	
+
 		    	for (int j = 0; j < jsonArray.length(); j++) {
 		    	
 		    		System.out.print("Tweet " + j + " : ");
@@ -70,32 +80,56 @@ public class TweetParser {
 		    		
 		    		// Get the field "Text" in that tweet. (also are others "id", "created_at", ...").
 		    		namesReferenced = extractor.extractMentionedScreennames(jsonObject.getString("text"));
-		    		ArrayList<String> links = new ArrayList();
+		    		
+		    		LinksList links = new LinksList();
 		    	    for (String name : namesReferenced) {
 		    	        System.out.print(name);
-		    	        if (name!="") links.add(name);
+		    	        if (name!=""){
+		    	        	if (!index.hasKey(fs[i].replace(".txt", ""))){
+				    			links.add(name);
+				    			index.put(fs[i].replace(".txt", ""),links);
+				    		}
+				    		else{
+								LinksList listOfLinksEntry = (LinksList) index.get(fs[i].replace(".txt", ""));	    			
+				    			for (int k = 0; k<listOfLinksEntry.size(); k++){
+				    				if (name == listOfLinksEntry.get(k).getScreenName()){
+				    					listOfLinksEntry.get(k).addOne();
+				    					k=listOfLinksEntry.size()+1;
+				    				}  					    				
+				    								    				
+				    			}
+				    		}
+		    	        }
 		    	        
 		    	    }
-		    	    if (!links.isEmpty()) index.put(fs[i].replace(".txt", ""), links);
+		    	    //if (!links.isEmpty()) index.put(fs[i].replace(".txt", ""), links);
 		    	    System.out.println();		    	    
 		    	}
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	}
-    	String serialized = JSONValue.toJSONString(index);
+    	/**String serialized = JSONValue.toJSONString(index);
     	try {
-			FileUtils.writeStringToFile(new File("C:\\Users\\Jack\\Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\EmilJack\\graph\\graph"), serialized);
+			FileUtils.writeStringToFile(new File("C:\\Users\\Jack\\workspace\\ir-project\\graph.txt"), serialized);
+			System.out.println("SKRIVER UT");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}**/
     	System.out.println();
     	Object[] keylist = getDictionary();
     	for (int k=0; k<keylist.length; k++){    		
-    		System.out.println(keylist[k].toString() + ": " + index.get(keylist[k].toString()));    		
+    		try {
+				System.out.println(keylist[k].toString() + ": " + index.get(keylist[k].toString()));
+			} catch (MegaMapException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}    		
     	}
+    	manager.shutdown();
+    	//ReadGraph callReadGraph = new ReadGraph();
 	}	
 	
 	/**
@@ -104,7 +138,7 @@ public class TweetParser {
      */
     @SuppressWarnings("rawtypes")
 	public static Object[] getDictionary() {
-    	Set keys = index.keySet();
+    	Set keys = index.getKeys();
 	   	Object[] keylist= keys.toArray();    	
     	return keylist;
     }
@@ -127,5 +161,5 @@ public class TweetParser {
 		} finally {
 			return content;
 		}
-	}	
+	}
 }
