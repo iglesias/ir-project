@@ -6,17 +6,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.simple.JSONValue;
 
 import com.twitter.Extractor;
-import org.apache.commons.io.FileUtils;
 
 import com.larvalabs.megamap.MegaMapException;
 import com.larvalabs.megamap.MegaMapManager;

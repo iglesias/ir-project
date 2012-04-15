@@ -7,17 +7,17 @@
  */  
 
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.io.Serializable;
-import java.util.Collections;
 
 /**
  *   A list of postings for a given word.
  */
 public class LinksList implements Serializable {
     
-    /** The postings list as a linked list. */
+	private static final long serialVersionUID = 1L;
+	
+	/** The postings list as a linked list. */
     private LinkedList<LinksEntry> list;
     
     public boolean empty(){

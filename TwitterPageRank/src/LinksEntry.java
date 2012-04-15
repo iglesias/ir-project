@@ -1,9 +1,8 @@
-
-import java.util.*;
 import java.io.Serializable;
 
 public class LinksEntry implements Serializable{
 	
+	private static final long serialVersionUID = 1L;
 	private String screenName;
 	private int numberOfPaths;
 	
