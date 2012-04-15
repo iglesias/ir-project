@@ -25,8 +25,8 @@ import com.larvalabs.megamap.MegaMap;
 public class TweetParser {
 
 	// Constant (better put as an input parameter).
-	private static String path = "C:\\Users\\Jack\\Documents\\My Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\EmilJack\\tweets";
-	private static String path2 = "C:\\Users\\Jack\\Documents\\My Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\BerFer\\data\\BowieState\\TweetsList";
+	private static String path = "C:\\Users\\Jack\\Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\EmilJack\\tweets";
+	private static String path2 = "C:\\Users\\Jack\\Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\BerFer\\data\\BowieState\\TweetsList";
 	
 	/** The graph as a hashtables. */
     public static HashMap<String, ArrayList<LinksEntry>> index2 = new HashMap<String, ArrayList<LinksEntry>>();
@@ -86,9 +86,9 @@ public class TweetParser {
 		    		namesReferenced = extractor.extractMentionedScreennames(jsonObject.getString("text"));
 		    		
 		    		LinksList links = new LinksList();
-		    		LinksList listOfLinksEntry = new LinksList();
+		    		LinksList listOfLinksEntry = null;
 		    		
-		    		if (index.hasKey(fs[i].replace(".json", ""))){
+		    		if (index.hasKey(fs[i].replace(".json", ""))){		    			
 		    			listOfLinksEntry = (LinksList) index.get(fs[i].replace(".json", ""));		    			
 		    		}
 		    		
@@ -103,8 +103,7 @@ public class TweetParser {
 				    			boolean tru = false;
 				    			for (int k = 0; k<listOfLinksEntry.size(); k++){
 				    				System.out.println(listOfLinksEntry.get(k).getScreenName());
-				    				if (name.toString() == listOfLinksEntry.get(k).getScreenName()){
-				    					System.out.println("Inne nu!!!");
+				    				if (name.toString().equals(listOfLinksEntry.get(k).getScreenName())){				    					
 				    					listOfLinksEntry.get(k).addOne();
 				    					k=listOfLinksEntry.size()+1;
 				    					tru = true;
