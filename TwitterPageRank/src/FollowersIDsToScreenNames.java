@@ -75,7 +75,7 @@ public class FollowersIDsToScreenNames {
 				br.close();
 				
 			} else {
-				System.err.println("File " + args[0] + "not found");
+				System.err.println("File " + args[0] + " not found");
 			}
 
 		} catch (IOException e) {
@@ -124,7 +124,7 @@ public class FollowersIDsToScreenNames {
 					urlInput.close();
 					
 					// Get user's screen_name
-					value = ((JSONObject) jsonArray.get(0) ).get("screen_name")
+					value = ((JSONObject) jsonArray.get(0)).get("screen_name")
 								       .toString();
 
 					// Overwrite the previous value associated to this key
