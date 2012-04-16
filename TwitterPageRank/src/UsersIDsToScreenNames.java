@@ -19,7 +19,7 @@ import org.json.JSONObject;
  * @author Fernando José Iglesias García
  */
 
-public class FollowersIDsToScreenNames {
+public class UsersIDsToScreenNames {
 
 	/**
 	 * Auxiliary structure to keep track of the IDs that have already been 
@@ -39,14 +39,11 @@ public class FollowersIDsToScreenNames {
 	 */
 	public static final boolean DEBUG_OUT = false;
 	
-	/**
-	 * TODO explanation
-	 */
 	public static void main(String[] args) {
 
 		if (args.length < 1) {
-			System.err.println("usage: FollowersIDsToScreenNames " + 
-					"<followersFile>");
+			System.err.println("usage: UsersIDsToScreenNames " + 
+					"<usersIDsFile>");
 			return;
 		}
 		
@@ -82,7 +79,7 @@ public class FollowersIDsToScreenNames {
 			e.printStackTrace();
 		}
 
-		System.out.println("Followers file loaded, " + nIDsResolved + 
+		System.out.println("Users IDs file loaded, " + nIDsResolved + 
 				" IDs out of " + nIDsTotal + " are associated");
 		
 		if (DEBUG_OUT) {
@@ -109,7 +106,7 @@ public class FollowersIDsToScreenNames {
 			
 			if (value == null) {
 				
-				// Get the screen_name associated to this follower ID
+				// Get the screen_name associated to this user ID
 				
 				try {
 					// Get user information in .json
