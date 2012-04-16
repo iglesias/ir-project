@@ -1,9 +1,12 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +26,10 @@ public class TweetParser {
 	// Constant (better put as an input parameter).
 	private static String path = "C:\\Users\\Jack\\Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\EmilJack\\tweets";
 	private static String path2 = "C:\\Users\\Jack\\Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\BerFer\\data\\BowieState\\TweetsList";
+	private static String followers = "C:\\Users\\Jack\\Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\BerFer\\followers_BowieState_1334011733253.txt";
 	
-	/** The graph as a hashtables. */
-    public static HashMap<String, ArrayList<LinksEntry>> index2 = new HashMap<String, ArrayList<LinksEntry>>();
+	/** The store the screen names in a hashtable. */
+    public static HashMap<String, String> followerIndex = new HashMap<String, String>();
 	
     private static MegaMap index;
     private static MegaMapManager manager;
@@ -35,11 +39,29 @@ public class TweetParser {
     	Extractor extractor = new Extractor();   // To extract @user, #hashtag ...		
     	File dokDir = new File(path2);
     	String[] fs = dokDir.list();
-		ArrayList<String> userTweets = new ArrayList<String>();	
+		ArrayList<String> userTweets = new ArrayList<String>();		
 		
 		try {
 		    manager = MegaMapManager.getMegaMapManager();
 		    index = manager.createMegaMap( "graph", path.replace("\\tweets", "\\graph"), true, false );
+		    
+		    /** Open the followers list file */
+		    FileInputStream fstream = new FileInputStream(followers);
+		    
+		    /** Get the object of DataInputStream */
+		    DataInputStream in = new DataInputStream(fstream);		    
+		    BufferedReader br = new BufferedReader(new InputStreamReader(in));
+		    
+		    String strLine;
+		    
+		    /** Read File Line By Line and add to followerIndex */
+		    while ((strLine = br.readLine()) != null)   {
+		    	String [] splitted = new String[2];
+		    	splitted = strLine.split(";");
+		    	followerIndex.put(splitted[1], ";");		    	
+		    }
+		    /** Close the input stream */
+		    in.close();
 		}
 		catch ( Exception e ) {
 		    e.printStackTrace();
@@ -127,30 +149,39 @@ public class TweetParser {
 			e.printStackTrace();
 		}**/
     	System.out.println();
-    	Object[] keylist = getDictionary();
+    	Object[] keylist = getDictionary(1);
     	
-    	//Create File
+    	/** Create Output Graph.txt File */
     	try {
 			FileWriter fstream = new FileWriter(path.replace("\\tweets", "\\graph\\") + "graph.txt");
 			BufferedWriter out = new BufferedWriter(fstream);
 			
-			for (int k=0; k<keylist.length; k++){
-				String outPutRow = keylist[k].toString() + ";";
+			for (int k=0; k<keylist.length; k++){		
+				//String outPutRow = keylist[k].toString() + ";";				
 	    		try {
 	    			LinksList temp = (LinksList) index.get(keylist[k].toString());
+	    			
 	    			/**Loop through all LinksEntries that exist in the current LinksList for the current key (screenname)*/
 	    			for (int y = 0; y<temp.size(); y++){
 	    				LinksEntry tempEntry = temp.get(y);
-	    				outPutRow = outPutRow + tempEntry.getScreenName() + "(" + tempEntry.getNumberOfPaths() + "),";	    				
+	    				followerIndex.put(keylist[k].toString(), followerIndex.get(keylist[k].toString()) + tempEntry.getScreenName() + "(" + tempEntry.getNumberOfPaths() + "),");
+	    				//outPutRow = outPutRow + tempEntry.getScreenName() + "(" + tempEntry.getNumberOfPaths() + "),";	    				
 	    			}
-	    			out.write(outPutRow + "\n");
+	    			followerIndex.put(keylist[k].toString(), followerIndex.get(keylist[k].toString()));
+	    			//out.write(outPutRow + "\n");
 					System.out.println(keylist[k].toString() + ": " + index.get(keylist[k].toString()));
 				} catch (MegaMapException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}    		
-	    	}
+	    	}			
+			
+			Object[] allFollowers = getDictionary(2);
+			for (int p = 0; p<allFollowers.length;p++){
+				out.write(allFollowers[p].toString() + followerIndex.get(allFollowers[p].toString()) + "\n");				
+			}			
 			out.close();
+						
 			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -165,9 +196,16 @@ public class TweetParser {
      *  as a Object.
      */
     @SuppressWarnings("rawtypes")
-	public static Object[] getDictionary() {
-    	Set keys = index.getKeys();
-	   	Object[] keylist= keys.toArray();    	
+	public static Object[] getDictionary(int n) {
+    	Object[] keylist = null;
+    	Set keys = null;
+    	if (n == 1){
+    		keys = index.getKeys();    		
+    	}
+    	else if (n == 2){
+    		keys = followerIndex.keySet();    		
+    	}    	
+    	keylist= keys.toArray();	
     	return keylist;
     }
 	
