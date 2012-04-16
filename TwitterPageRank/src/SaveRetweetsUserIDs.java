@@ -36,12 +36,6 @@ public class SaveRetweetsUserIDs {
 			"data/BowieState/TweetsList";
 	
 	/**
-	 * Set to true to parse USERS_PATH and save the screen_name of the users
-	 * together with id_str of the tweets that have been retweeted
-	 */
-	private static final boolean READ_TWEETS = false;
-	
-	/**
 	 * Auxiliary structure to store the association between user screen names
 	 * and the id_str of the tweet
 	 */
@@ -55,40 +49,61 @@ public class SaveRetweetsUserIDs {
 	public static HashMap<String, LinkedList<String>> tweetIdToRetweetersIds =
 			new HashMap<String, LinkedList<String>>();
 	
+	private enum EMode {
+		MReadTweets, MResolveTweets, MStoreRetweeters
+	}
+	
 	/**
-	 * @param args path to tweets&retweets file
+	 * @param args path to tweetsRetweets file
 	 */
 	public static void main(String[] args) {
-		
-		if ( READ_TWEETS ) {
-			// Create the tweets&retweets file and exit
-			readTweets();
-			return;
-		}
+	
+		EMode mode = EMode.MStoreRetweeters;
 		
 		if ( args.length < 1 ) {
 			System.err.println("usage: SaveRetweetUserIDs " + 
 					"<tweets&retweetsFile>");
 			return;
 		}
-
+		
 		File tweetsRetweetsFile = new File(args[0]);
 		
-		// Read the available information from the file and populate the 
-		// HashMaps
-		loadTweetsRetweetsFile(tweetsRetweetsFile);
+		switch (mode) {
 		
-		// Authenticate with OAuth because the petition we are about to do with
-		// the API requires it
-		OAuth.authenticate();
-		
-		// Solve as many retweeters ids as possible
-		sendRequests();
-		
-		// Save file
-		saveTweetsRetweetsFile(tweetsRetweetsFile);
-	}
+			case MReadTweets:
+				// Create the tweetsRetweets file and exit
+				readTweets();
+				break;
+				
+			case MResolveTweets:
+				// Send as many requests as possible, update the file and exit
+				
+				// Read the available information from the file and populate the
+				// HashMaps
+				loadTweetsRetweetsFile(tweetsRetweetsFile);
+				
+				// Authenticate with OAuth because the petition we are about to
+				// do with the API requires it
+				OAuth.authenticate();
+				
+				// Solve as many retweeters ids as possible
+				sendRequests();
+				
+				// Save file
+				saveTweetsRetweetsFile(tweetsRetweetsFile);
+				
+				break;
 
+			case MStoreRetweeters:
+				// Save in a file retweetersIDs the user IDs of the people that
+				// has retweeted something
+		
+				writeRetweeters(tweetsRetweetsFile);
+				break;
+		}
+		
+		
+	}
 
 	private static void readTweets() {
 		
@@ -209,7 +224,7 @@ public class SaveRetweetsUserIDs {
 				
 				br.close();
 				
-				System.out.println("tweet&retweets file loaded, " + 
+				System.out.println("tweetRetweets file loaded, " + 
 						nTweetsResolved + " tweets solved out of " + 
 						nTweetsTotal);
 				System.out.println();
@@ -371,7 +386,51 @@ public class SaveRetweetsUserIDs {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	
+	
+	}
+
+
+	private static void writeRetweeters(File tweetsRetweetsFile) {
 		
+		// Load the tweetsRetweetsFile
+		loadTweetsRetweetsFile(tweetsRetweetsFile);
+		
+		// Store in a set the IDs of all the retweeters
+		HashSet<String> retweetersIDs = new HashSet<String>();
+		
+		Iterator<LinkedList<String>> it = 
+				tweetIdToRetweetersIds.values().iterator();
+		
+		
+		while ( it.hasNext() ) {
+			
+			LinkedList<String> retweeters = it.next();
+			
+			for (int i = 0; i < retweeters.size(); i++) {
+				retweetersIDs.add( retweeters.get(i) );
+			}
+		
+		}
+		
+		// Dump to a file the retweeters IDs
+		try {
+			
+			BufferedWriter bw = new BufferedWriter(
+					new FileWriter("retweetersIDs.txt"));
+			
+			Iterator<String> itt = retweetersIDs.iterator();
+			while (itt.hasNext()) {
+				String retweeterID = itt.next();
+				
+				bw.write(retweeterID + ";");
+				bw.write((itt.hasNext() ? "\n" : ""));
+			}
+			bw.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 	}
 }
