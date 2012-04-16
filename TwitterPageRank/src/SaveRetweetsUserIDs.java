@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -228,27 +229,41 @@ public class SaveRetweetsUserIDs {
 
 	private static void sendRequests() {
 		
+		HashSet<String> trapTweetsIds = new HashSet<String>();
+		
 		Iterator<String> it = tweetIdToRetweetersIds.keySet().iterator();
 		int nRequest = 0, nTweetsResolved = 0;
 		while ( it.hasNext() ) {
 			
-			String key = it.next();
-			LinkedList<String> list = tweetIdToRetweetersIds.get(key);
+			String tweetId = it.next();
+			LinkedList<String> list = tweetIdToRetweetersIds.get(tweetId);
 			
 			if ( list.size() == 0 ) {
 				
 				nRequest++;
-				System.out.println(">>>> Request #" + nRequest + " -> " + key);
+				System.out.println(">>>> Request #" + nRequest + " -> " + 
+									tweetId);
 				// Get the user_id(s) of the people that has retweeted this 
 				// tweet
 				
 				OAuthRequest request = new OAuthRequest(Verb.GET, 
-						buildRetweetedByURL(key));
+						buildRetweetedByURL(tweetId));
 				OAuth.signRequest(request);
 				Response response = request.send();
 				
 				String userIdsStr = response.getBody();
 				System.out.println(userIdsStr);
+				
+				// There are some "trap" tweets, the parameter retweet-count 
+				// indicates that they have been retweeted but no user_id is
+				// returned with this request. When that happens, we just delete
+				// that tweet entry
+				if ( userIdsStr.equals("[]") ) {
+					System.out.println("Found trap tweet!");
+					trapTweetsIds.add(tweetId);
+					System.out.println();
+					continue;
+				}
 				
 				JSONObject respJSONObj = null;	
 				// This is a bit ugly but works fine
@@ -262,11 +277,32 @@ public class SaveRetweetsUserIDs {
 				}
 				
 				if ( respJSONObj != null && respJSONObj.has("error") ) {
-					System.out.println("The request produced an error..." +
-							" no more requests will be sent. " + 
-							nTweetsResolved + " new tweets associated.");
-					return;
-				}
+					
+					String errorCode = null;
+					try {
+						errorCode = respJSONObj.getString("error")
+														.toString();
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+					
+					if ( errorCode.equals("Not found") ) {
+						
+						// Tweet that might have been removed
+						System.out.println("Found removed tweet!");
+						trapTweetsIds.add(tweetId);
+						System.out.println();
+						continue;
+						
+					} else {
+						// Assume that another error is caused by the rate limit
+						System.out.println("The request produced an error..." +
+								" no more requests will be sent. " + 
+								nTweetsResolved + " new tweets associated.");
+						break;	
+					}
+						
+									}
 				
 				// Remove '[' and ']' from the beginning and the end
 				userIdsStr = userIdsStr.substring(1, userIdsStr.length()-1);
@@ -283,6 +319,16 @@ public class SaveRetweetsUserIDs {
 				System.out.println();
 				
 			}
+			
+		}
+		
+		// Remove "trap" tweets to avoid wasting requests in the future
+		it = trapTweetsIds.iterator();
+		while ( it.hasNext() ) {
+			
+			String trapTweetId = it.next();
+			tweetIdToScreenName.remove(trapTweetId);
+			tweetIdToRetweetersIds.remove(trapTweetId);
 			
 		}
 		
