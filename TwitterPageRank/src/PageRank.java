@@ -100,7 +100,7 @@ public class PageRank{
     /**
      * Constructor.
      * @param fileGraph : Path to the file which contains the graph.
-     * @param filePR : Path to the file we will save the pageRank.
+     * @param filePR : Path to the file where we will save the pageRank.
      * @param method : 0 (PowerIteration) | 1,2,3,4,5 (MonteCarlo i).
      */
     PageRank( String fileGraph, String filePR, int method) {
@@ -207,13 +207,14 @@ public class PageRank{
      */
     void computePagerank( int N , int method) {
 
-        // Call the choosed algorithm.
+        // Call the chosen algorithm.
         switch (method){
         case 0  : pi = powerIteration(N); break;
         case 1  : pi = monteCarlo1(N,N);  break;
         case 5  : pi = monteCarlo5(N,N);  break;
-        default : System.out.println("Choosed algorithm (" + method + ") doesnt exists!.");
-                  break;
+        default :
+		System.out.println("The Chosen algorithm (" + method + ") doesnt exists!.");
+		System.exit(1);
         }
 
         // Show the best ranked and the sum check.
