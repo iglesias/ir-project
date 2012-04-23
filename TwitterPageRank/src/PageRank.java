@@ -48,7 +48,7 @@ public class PageRank{
      *   Never do more than this number of iterations  regardless of whether the transistion
      *   probabilities converge or not only for power iteration method.
      */
-    final static int MAX_NUMBER_OF_ITERATIONS = 100;
+    final static int MAX_NUMBER_OF_ITERATIONS = 40;
     
     /*************************************************************************************/
     
@@ -487,8 +487,21 @@ public class PageRank{
         try {
             file = new FileWriter(filename);
             pw = new PrintWriter(file);
-            for (int i=0; i<N; i++) 
-                pw.println(docName[i] + ";" + pi[i]);
+            
+            // Sort the pages by rank
+    		Integer[] idxs = new Integer[N];
+    		final Double[] vs = new Double[N]; 
+    		for ( int i = 0 ; i < N ; ++i ) idxs[i] = i;
+    		for ( int i = 0 ; i < N ; ++i ) vs[i] = pi[i];
+    		Arrays.sort(idxs, new Comparator<Integer>() {
+    			@Override public int compare(final Integer o1, final Integer o2) {
+    				return -1 * Double.compare( vs[o1], vs[o2] );
+    			}
+    		});
+
+    		// Save the pageRank in order.
+    		for ( int i = 0 ; i < N; ++i )
+    			pw.println(docName[idxs[i]] + ";" + pi[idxs[i]]);
         
         } catch (Exception e1) {
             e1.printStackTrace();
