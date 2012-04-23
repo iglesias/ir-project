@@ -13,25 +13,26 @@ import java.io.*;
 
 public class PageRank{
 
-	/**************************************************************************************
-	 *                          PARAMETERS TO CHANGE MANUALLY                             *
-	 **************************************************************************************/
-	/**
-	 * Variable to choose if use the original powerIteration method or the modified by us.
-	 */
-	boolean original = false;
-	
-	/**
-	 * Choose the number of first users we want to show.
-	 */
-	Integer nPositionsShow = 10;
-	
+    /**************************************************************************************
+     *                          PARAMETERS TO CHANGE MANUALLY                             *
+     **************************************************************************************/
+
+    /**
+     * Variable to choose if use the original powerIteration method or the modified by us.
+     */
+    boolean original = false;
+    
+    /**
+     * Choose the number of first users we want to show.
+     */
+    Integer nPositionsShow = 10;
+    
     /**  
      *   Maximal number of documents. We're assuming here that we don't have more docs than
      *   we can keep in main memory.
      */
     final static int MAX_NUMBER_OF_DOCS = 2000000;
-	
+
     /**
      *   The probability that the surfer  will be  bored,  stop following links, and take a 
      *   random jump somewhere.
@@ -100,7 +101,7 @@ public class PageRank{
     /**
      * Constructor.
      * @param fileGraph : Path to the file which contains the graph.
-     * @param filePR : Path to the file we will save the pageRank.
+     * @param filePR : Path to the file where we will save the pageRank.
      * @param method : 0 (PowerIteration) | 1,2,3,4,5 (MonteCarlo i).
      */
     PageRank( String fileGraph, String filePR, int method) {
@@ -207,13 +208,15 @@ public class PageRank{
      */
     void computePagerank( int N , int method) {
 
-        // Call the choosed algorithm.
+        // Call the chosen algorithm.
         switch (method){
         case 0  : pi = powerIteration(N); break;
         case 1  : pi = monteCarlo1(N,N);  break;
+        case 4  : pi = monteCarlo4(N, 100); break;
         case 5  : pi = monteCarlo5(N,N);  break;
-        default : System.out.println("Choosed algorithm (" + method + ") doesnt exists!.");
-                  break;
+        default :
+		System.out.println("The Chosen algorithm (" + method + ") doesnt exists!.");
+		System.exit(1);
         }
 
         // Show the best ranked and the sum check.
@@ -339,6 +342,45 @@ public class PageRank{
         return pi;
     }
     /********************************************************************/
+
+    /********************************************************************
+     *                          MONTECARLO 4
+     * ******************************************************************
+     * Algorithm 4 described in Avrachenkov's et al. paper, complete path
+     * stopping at dangling nodes.
+     * Simulate random walks starting exactly m times from each page. Evaluate 
+     * the PageRank for each page as the fraction of visits to that page divided
+     * by the total number of visited pages.
+     *
+     * @return the PageRank vector
+     */
+    private double[] monteCarlo4( int N, int m ) {
+    
+        // PageRank vector
+        double[] pi = new double[N];
+        // # random visits to every page        
+        int[] visits = new int[N];
+        for ( int i = 0 ; i < N ; ++i ) visits[i] = 0;
+        // Total number of visits
+        int totalVisits = 0;
+        
+        // Simulate the random walks
+        for ( int i = 0 ; i < m ; ++i )
+            for ( int j = 0 ; j < N ; ++j )
+                totalVisits += randomWalk(N, j, visits);
+
+        for (int i = 0 ; i < N ; ++i )
+            pi[i] = visits[i] / (double)totalVisits;
+
+        // --- DEBUG ---
+        if ( DEBUG )
+            System.err.println(">>>> Monte Carlo Algorithm 4 finished after "
+                    + m + " random walks from each page");
+
+        return pi;
+
+    }
+    /********************************************************************/
     
     /********************************************************************
      *                          MONTECARLO 5
@@ -394,7 +436,7 @@ public class PageRank{
      *
      * @return the page where the walk ends
      */
-	private int randomWalk( int N, int actualPage ) {
+    private int randomWalk( int N, int actualPage ) {
     
         // A random walk terminates with probability 1-C
         final double C = 1-BORED;  // same as the one used in powerIteration?
@@ -442,8 +484,65 @@ public class PageRank{
         } // while
 
         return actualPage;
+
     }
-    
+
+    /**
+     * Simulation of random walk 
+     *
+     * @return number of visited pages
+     */
+    private int randomWalk( int N, int actualPage, int[] visits ) {
+
+    	final double C = 1-BORED;
+        int totalVisits = 0;
+        double random;
+        boolean terminate = false;
+        while ( ! terminate ) {
+            
+            // Update statistics
+            ++totalVisits;
+            ++visits[ actualPage ];
+
+            // Generate a random number to test termination of the random walk
+            random = Math.random();
+            if ( random < (1 - C) ) {
+                terminate = true;
+            } else {
+                // Generate a random number to do the transition to another page
+                random = 1 - Math.random();  // random is in (0, 1]
+                // Cumulative probability of the transitions already explored
+                double cumsum = 0.0;
+                for ( int i = 0 ; i < N ; ++i ) {
+
+                    // Read the probability of going to page i from actualPage
+                    double pij = 0.0;
+                    Hashtable<Integer, Integer> outlinks = link.get(actualPage);
+                    if ( outlinks == null ) { 
+                        // Dangling node (wihtout no outlinks)
+                        terminate = true;
+                        break;
+                    } else if ( outlinks.get(i) != null && outlinks.get(i) >=0 )
+                        pij = 1 / (double)outlinks.size();
+
+                    // Jump to i allowed if the transistion prob. is non-zero
+                    if ( pij != 0.0 )
+                        if ( random > cumsum && random <= cumsum + pij ) {
+                            actualPage = i;
+                            break;
+                        }
+                    
+                    cumsum += pij;
+
+                }
+            }
+
+        }
+
+        return totalVisits;
+
+    }
+
    /**
     *  Method to show a list of the nPositionShow first best ranked.
     */

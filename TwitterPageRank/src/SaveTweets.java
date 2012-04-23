@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Date : 13/04/2012                                                           *
- * Description : This class download the tweets of a group of followers given  *
+ * Description : This class downloads the tweets of a group of followers given *
  *               a file with the relationship <ID,Screen_name>.                *
  *                                                                             *
  * Execution : SaveTweets <screennamesfile>                                    *     

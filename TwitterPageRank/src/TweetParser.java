@@ -1,3 +1,12 @@
+/*
+ *   This file is part of the computer assignment for the Information Retrieval
+ *   course at KTH.
+ *
+ *   Students:       Jack Ha, Emil Broqvist Widham 2012
+ *
+ *   Date : 22/04/2012.
+ */  
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -11,8 +20,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.lang.String;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.twitter.Extractor;
@@ -28,13 +39,15 @@ public class TweetParser {
 	private static String path2 = "C:\\Users\\Jack\\Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\BerFer\\data\\BowieState\\TweetsList";
 	private static String followers = "C:\\Users\\Jack\\Dropbox\\KTH-stuff\\DD2476 Search Engines and Information Retrieval Systems\\DD2476 Search Engines and Information Retrieval Project\\BerFer\\followers_BowieState_1334011733253.txt";
 	
-	/** The store the screen names in a hashtable. */
+	/** Store the screen names in a Hashmap. */
     public static HashMap<String, String> followerIndex = new HashMap<String, String>();
 	
     private static MegaMap index;
     private static MegaMapManager manager;
+    private static ArrayList<JSONObject> TweetList = new ArrayList<JSONObject>();
+    private static int id = 0;
     
-	public static void main(String[] args) throws MegaMapException {
+	public static void main(String[] args) throws MegaMapException, JSONException {
 		// Variables.
     	Extractor extractor = new Extractor();   // To extract @user, #hashtag ...		
     	File dokDir = new File(path2);
@@ -92,6 +105,7 @@ public class TweetParser {
 		    	// Look the @user references in each of the tweets.
 		    	List<String> namesReferenced;
 		    	
+		    	
 		    	/**Loop through every tweet for user fs[i]*/
 		    	for (int j = 0; j < jsonArray.length(); j++) {
 		    	
@@ -106,6 +120,13 @@ public class TweetParser {
 		    		LinksList links = new LinksList();
 		    		LinksList listOfLinksEntry = null;
 		    		
+		    		/** Write all Tweets to JSON Files - these JSON Files are later used for indexing on Solr **/
+		    		JSONObject Tweets = new JSONObject();
+		    		Tweets.put("id", id);					
+					Tweets.put("author", fs[i].replace(".json", ""));
+					Tweets.put("title", jsonObject.getString("text"));
+					TweetList.add(Tweets);
+		    		id++;
 		    		if (index.hasKey(fs[i].replace(".json", ""))){		    			
 		    			listOfLinksEntry = (LinksList) index.get(fs[i].replace(".json", ""));		    			
 		    		}
@@ -132,7 +153,6 @@ public class TweetParser {
 		    	        }
 		    	        
 		    	    }
-		    	    //if (!links.isEmpty()) index.put(fs[i].replace(".txt", ""), links);
 		    	    System.out.println();		    	    
 		    	}
 		} catch (Exception e) {
@@ -140,14 +160,7 @@ public class TweetParser {
 			e.printStackTrace();
 		}
     	}
-    	/**String serialized = JSONValue.toJSONString(index);
-    	try {
-			FileUtils.writeStringToFile(new File("C:\\Users\\Jack\\workspace\\ir-project\\graph.txt"), serialized);
-			System.out.println("SKRIVER UT");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}**/
+    	
     	System.out.println();
     	Object[] keylist = getDictionary(1);
     	
@@ -174,14 +187,31 @@ public class TweetParser {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}    		
-	    	}			
-			
+	    	}
 			Object[] allFollowers = getDictionary(2);
 			for (int p = 0; p<allFollowers.length;p++){
-				out.write(allFollowers[p].toString() + followerIndex.get(allFollowers[p].toString()) + "\n");				
+				out.write(allFollowers[p].toString() + followerIndex.get(allFollowers[p].toString()) + "\n");
 			}			
 			out.close();
-						
+			try {
+				 
+				FileWriter file = new FileWriter(path.replace("\\tweets", "\\graph") + "\\tweets.json");
+				file.write("[\n");
+				for (int i = 0; i<TweetList.size(); i++){
+					if (i!=TweetList.size()-1){
+						file.write(TweetList.get(i).toString()+",\n");
+					}
+					else {
+						file.write(TweetList.get(i).toString()+"\n");
+					}
+				}
+				file.write("]");
+				file.flush();
+				file.close();
+		 
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
