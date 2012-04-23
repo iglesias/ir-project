@@ -104,7 +104,7 @@ public class TweetParser {
 	    	 
 		    	// Look the @user references in each of the tweets.
 		    	List<String> namesReferenced;
-		    	
+		    	List<String> profilePicture;
 		    	
 		    	/**Loop through every tweet for user fs[i]*/
 		    	for (int j = 0; j < jsonArray.length(); j++) {
@@ -116,6 +116,7 @@ public class TweetParser {
 		    		
 		    		// Get the field "Text" in that tweet. (also are others "id", "created_at", ...").
 		    		namesReferenced = extractor.extractMentionedScreennames(jsonObject.getString("text"));
+		    		JSONObject userObject = jsonObject.getJSONObject("user");
 		    		
 		    		LinksList links = new LinksList();
 		    		LinksList listOfLinksEntry = null;
@@ -123,8 +124,9 @@ public class TweetParser {
 		    		/** Write all Tweets to JSON Files - these JSON Files are later used for indexing on Solr **/
 		    		JSONObject Tweets = new JSONObject();
 		    		Tweets.put("id", id);					
-					Tweets.put("author", fs[i].replace(".json", ""));
-					Tweets.put("title", jsonObject.getString("text"));
+					Tweets.put("screen_name", fs[i].replace(".json", ""));
+					Tweets.put("text", jsonObject.getString("text"));
+					Tweets.put("profile_url", userObject.get("profile_image_url"));
 					TweetList.add(Tweets);
 		    		id++;
 		    		if (index.hasKey(fs[i].replace(".json", ""))){		    			
@@ -160,7 +162,6 @@ public class TweetParser {
 			e.printStackTrace();
 		}
     	}
-    	
     	System.out.println();
     	Object[] keylist = getDictionary(1);
     	
