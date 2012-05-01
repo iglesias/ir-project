@@ -99,7 +99,8 @@ public class PanelSelectionUniverse extends JPanel{
 				if (!e.getValueIsAdjusting() && (universeList.getSelectedValue()!=null)){
 					PageRankGUI.actUniverse = (String) universeList.getSelectedValue();
 					System.out.println("Selected : " + PageRankGUI.actUniverse);
-					if ((PageRankGUI.actUniverse!=null) && (PageRankGUI.actMethod!=null)){
+					if ((PageRankGUI.actUniverse!=null) && (PageRankGUI.actMethod!=null) &&
+						(PageRankGUI.actOption!=null)){
 						PanelShowPageRank.loadPageRank();
 					}
 				}

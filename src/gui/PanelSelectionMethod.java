@@ -118,7 +118,8 @@ public class PanelSelectionMethod extends JPanel{
 				if (!e.getValueIsAdjusting() && (methodList.getSelectedValue()!=null)){
 					PageRankGUI.actMethod = (String) methodList.getSelectedValue();
 					System.out.println("Selected : " + PageRankGUI.actMethod);
-					if ((PageRankGUI.actUniverse!=null) && (PageRankGUI.actMethod!=null)){
+					if ((PageRankGUI.actUniverse!=null) && (PageRankGUI.actMethod!=null) &&
+						 (PageRankGUI.actOption!=null)){
 						PanelShowPageRank.loadPageRank();
 					}
 				}
