@@ -108,12 +108,20 @@ public class PanelShowPageRank extends JPanel{
 		
 		// Set the pagerank in pagerank @user.
 		String pathMentioned = PageRankGUI.rootPath + PageRankGUI.actUniverse + 
-		                       PageRankGUI.pagerankMentionedPath + PageRankGUI.actMethod + ".txt";
-		textTweets.setText(HandlerGUI.getContentRank(pathMentioned));
+		                       PageRankGUI.pagerankMentionedPath + "/" +
+		                       PageRankGUI.actOption + "/" + 
+		                       PageRankGUI.actMethod + ".txt";
+		
+		if (PageRankGUI.actOption.equals("all"))
+			textTweets.setText(HandlerGUI.getContentRank(pathMentioned));
+		else
+			textTweets.setText(HandlerGUI.getContentRankHTML(pathMentioned));
 		
 		// Set the pagerank in pagerank retweets.
 		String pathRetweeted = PageRankGUI.rootPath + PageRankGUI.actUniverse + 
-        					   PageRankGUI.pagerankRetweetedPath + PageRankGUI.actMethod + ".txt";
+        					   PageRankGUI.pagerankRetweetedPath + "/" +
+        		               PageRankGUI.actOption + "/" +  
+        					   PageRankGUI.actMethod + ".txt";
 		textRetweets.setText(HandlerGUI.getContentRank(pathRetweeted));	
 	}
 	
