@@ -5,6 +5,7 @@
 
 package gui;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -32,12 +33,15 @@ public class PanelTabSearch extends JPanel{
 	private JLabel icon;
 	private JTextField searchBox;
 	private JButton searchButton;
+	private JLabel nRetrieved;
+	private JEditorPane retrievedTweets;
+	
+	private JPanel checkPanel;
 	private JCheckBox checkAuthor;
 	private JCheckBox checkHashtag;
 	private JCheckBox checkDescription;
 	private JCheckBox checkText;
 	private JCheckBox checkDate;
-	private JEditorPane retrievedTweets;
 	
 	public PanelTabSearch(){
 		// ----------------------------------------------------------------------------
@@ -46,18 +50,28 @@ public class PanelTabSearch extends JPanel{
 		icon = new JLabel(new ImageIcon(PageRankGUI.iconPath));
 		searchBox = new JTextField("Query...");
 		searchButton = new JButton("Search");
+		nRetrieved = new JLabel("Retrieved:" + PageRankGUI.actRetrieved);
+		retrievedTweets = new JEditorPane("text/html","");
+		retrievedTweets.setEditable(false);
+		JScrollPane scrollRetrievedTweets = new JScrollPane(retrievedTweets);
+		
+		// ----------------------------------------------------------------------------
+		//                            SOME CONFIGURATIONS
+		// ----------------------------------------------------------------------------
+		//this.icon.setSize(new Dimension(100,400));
+		
+		checkPanel = new JPanel();
 		checkAuthor = new JCheckBox("Author");
 		checkHashtag = new JCheckBox("Hashtag");
 		checkDescription = new JCheckBox("Description");
 		checkText = new JCheckBox("Text");
 		checkDate = new JCheckBox("Date");
-		retrievedTweets = new JEditorPane("text/html","");
-		retrievedTweets.setEditable(false);
-		JScrollPane scrollRetrievedTweets = new JScrollPane(retrievedTweets);
-		
-		
-		//retrievedTweets.setBorder(javax.swing.BorderFactory.createTitledBorder("Retrieved Tweets"));
-		
+		checkPanel.add(checkAuthor);
+		checkPanel.add(checkText);
+		//checkPanel.add(checkDescription);
+		//checkPanel.add(checkHashtag);
+		//checkPanel.add(checkDate);
+				
 		// ----------------------------------------------------------------------------
 		//                        DEFINE LAYOUT ADMINISTRATOR
 		// ----------------------------------------------------------------------------
@@ -72,59 +86,47 @@ public class PanelTabSearch extends JPanel{
 		infoIcon.gridy = 0;
 		infoIcon.weightx = 1.0;
 		infoIcon.weighty = 1.0;
-		infoIcon.gridwidth = 4;
 		
 		GridBagConstraints infoSearchBox = new GridBagConstraints();
-		infoSearchBox.insets = new Insets(20,50,20,0);
+		infoSearchBox.insets = new Insets(20,50,3,0);
 		infoSearchBox.gridx = 0;
 		infoSearchBox.gridy = 1;
 		infoSearchBox.weightx = 1.0;
 		infoSearchBox.weighty = 0.0;
 		infoSearchBox.fill = GridBagConstraints.BOTH;
-		infoSearchBox.gridwidth = 4;
 		
 		GridBagConstraints infoSearchButton = new GridBagConstraints();
-		infoSearchButton.insets = new Insets(20,0,20,50);
-		infoSearchButton.gridx = 4;
+		infoSearchButton.insets = new Insets(20,0,3,50);
+		infoSearchButton.gridx = 1;
 		infoSearchButton.gridy = 1;
 		infoSearchButton.weightx = 0.0;
 		infoSearchButton.weighty = 0.0;
 		infoSearchButton.fill = GridBagConstraints.CENTER;
 		
-		GridBagConstraints infoCheckAuthor = new GridBagConstraints();
-		infoCheckAuthor.insets = new Insets(3,3,3,3);
-		infoCheckAuthor.gridx = 0;
-		infoCheckAuthor.gridy = 2;
-		infoCheckAuthor.fill = GridBagConstraints.BOTH;
+		GridBagConstraints infoCheckPanel = new GridBagConstraints();
+		infoCheckPanel.gridx = 0;
+		infoCheckPanel.gridy = 2;
+		infoCheckPanel.weightx = 0.0;
+		infoCheckPanel.weighty = 0.0;
+		infoCheckPanel.gridwidth = 2;
+		infoCheckPanel.anchor = GridBagConstraints.CENTER;
+		infoCheckPanel.fill = GridBagConstraints.CENTER;
 		
-		GridBagConstraints infoCheckHashtag = new GridBagConstraints();
-		infoCheckHashtag.insets = new Insets(3,3,3,3);
-		infoCheckHashtag.gridx = 1;
-		infoCheckHashtag.gridy = 2;
-		infoCheckHashtag.fill = GridBagConstraints.BOTH;
-		
-		GridBagConstraints infoCheckDescription = new GridBagConstraints();
-		infoCheckDescription.insets = new Insets(3,3,3,3);
-		infoCheckDescription.gridx = 2;
-		infoCheckDescription.gridy = 2;
-		
-		GridBagConstraints infoCheckText = new GridBagConstraints();
-		infoCheckText.insets = new Insets(3,3,3,3);
-		infoCheckText.gridx = 3;
-		infoCheckText.gridy = 2;
-		
-		GridBagConstraints infoCheckDate = new GridBagConstraints();
-		infoCheckDate.insets = new Insets(3,3,3,3);
-		infoCheckDate.gridx = 4;
-		infoCheckDate.gridy = 2;
+		GridBagConstraints infonRetrieved = new GridBagConstraints();
+		infonRetrieved.insets = new Insets(0,0,2,0);
+		infonRetrieved.gridx = 0;
+		infonRetrieved.gridy = 3;
+		infonRetrieved.weightx = 0.0;
+		infonRetrieved.weighty = 0.0;
+		infonRetrieved.anchor = GridBagConstraints.NORTHWEST;
 		
 		GridBagConstraints infoScroll = new GridBagConstraints();
 		infoScroll.gridx = 0;
-		infoScroll.gridy = 3;
+		infoScroll.gridy = 4;
 		infoScroll.weightx = 1.0;
 		infoScroll.weighty = 1.0;
 		infoScroll.fill = GridBagConstraints.BOTH;
-		infoScroll.gridwidth = 5;
+		infoScroll.gridwidth = 2;
 		
 		// ----------------------------------------------------------------------------
 		//                    ADD THE COMPONENTS TO THE CONTAINER
@@ -132,11 +134,8 @@ public class PanelTabSearch extends JPanel{
 		//this.add(icon,infoIcon);
 		this.add(searchBox,infoSearchBox);
 		this.add(searchButton,infoSearchButton);
-		//this.add(checkAuthor,infoCheckAuthor);
-		//this.add(checkHashtag,infoCheckHashtag);
-		//this.add(checkDescription,infoCheckDescription);
-		//this.add(checkText,infoCheckText);
-		//this.add(checkDate,infoCheckDate);
+		this.add(checkPanel,infoCheckPanel);
+		this.add(nRetrieved,infonRetrieved);
 		this.add(scrollRetrievedTweets,infoScroll);
 		
 		// ----------------------------------------------------------------------------
@@ -148,6 +147,14 @@ public class PanelTabSearch extends JPanel{
 				loadRetrievedTweets();
 			}
 		});
+		
+		this.searchBox.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				System.out.println("Query : " + searchBox.getText());
+				loadRetrievedTweets();
+			}
+		});
+		
 	}
 	
 	/**
@@ -155,14 +162,40 @@ public class PanelTabSearch extends JPanel{
 	 */
 	public void loadRetrievedTweets(){
 		
-		// Get the query.(searchBox.getText()
-		String query = searchBox.getText();
+		// Get the query.
+		String query = getQuerySelected();
+		String value = getValueSelected();
+		
+		System.out.println(query + "-" + value);
 		
 		// Get the retrieved tweets.
-		String content = HandlerSolr.getRetrievedTweets(query.split(" ")[0], query.split(" ")[1]);
+		String content = HandlerSolr.getRetrievedTweets(query,value);
+		
+		// Set the value of retrieved tweets.
+		nRetrieved.setText("Retrieved:" + PageRankGUI.actRetrieved);
 		
 		// Set the content in the JEditorPane.
 		retrievedTweets.setText(content);
+	}
+	
+	/**
+	 * Method to get the query that corresponds with the checkboxs. 
+	 */
+	public String getQuerySelected(){
+		String query = "";
+		if (checkText.isSelected()) query += "text";
+		if (checkAuthor.isSelected()) query += "+screen_name";
+		if (query.equals("")) query = "text+screen_name";
+		return query;
+	}
+	
+	/**
+	 * Method to get the value that corresponds to the searchBox field.
+	 */
+	public String getValueSelected(){
+		String value = searchBox.getText().replace(" ","+");
+		if (value.equals("")) value = "*";
+		return value;
 	}
 	
 	
