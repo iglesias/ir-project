@@ -18,6 +18,7 @@ public class PageRankGUI {
 	
 	public static String actUniverse = null;
 	public static String actMethod = null;
+	public static String actOption = null;
 	public static String actRetrieved = "0";
 	
 	public static String maxDocumentsRetrieved = "20";

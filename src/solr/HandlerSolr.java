@@ -104,6 +104,42 @@ public class HandlerSolr {
 			
 	}
 	
+	
+	/**
+	 * Method that given the parameters of a query return the objects.
+	 */
+	public static String getParameter(String parameter, String user){
+		try {			
+			// Get response information in json format.
+			URL url = new URL("http://localhost:8983/solr/select?" +
+			                  "q=screen_name:" + user + "&wt=json" +
+					          "&rows=1&fl=" + parameter + "&indent=true");
+			BufferedReader urlInput = new BufferedReader(new InputStreamReader(url.openStream()));      	
+	    	
+			// Read all the content in variable content.
+			String content = "";
+			String linea = null;
+			while ((linea = urlInput.readLine()) != null)
+				content += linea;
+			
+			// Build a json Object with the response.
+			// { "responseHeader":{...info...},
+			//  "response":{ "numFound":2,"start":0,"docs":[{r1},{r2},...{rn}]}
+			// } 
+			JSONObject jObject = new JSONObject(content);
+			JSONArray jArray = (JSONArray) ((JSONObject) jObject.get("response")).get("docs");	
+			
+			if (jArray.length()>0)
+				return (String) jArray.getJSONObject(0).get(parameter);
+			else
+				return "https://twimg0-a.akamaihd.net/sticky/default_profile_images/default_profile_3_normal.png";
+		
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		return "No retrieved documents";
+	}
+	
 	public static void main(String[] args){
 		
 		getRetrievedTweets("author","Rick");

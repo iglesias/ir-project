@@ -11,6 +11,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import solr.HandlerSolr;
+
 public class HandlerGUI {
 	
 	/**
@@ -77,6 +82,51 @@ public class HandlerGUI {
 					cont++;
 				}
 				br.close();
+			} else {
+				content = "The file " + path + " doesnt exist.";
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			return content;
+		}	
+	}
+	
+	/**
+	 * Method to get all the content of one "PageRank" file.
+	 * @param file
+	 * @return String
+	 */
+	@SuppressWarnings("finally")
+	public static String getContentRankHTML(String path){
+		String content = "<html><head></head><body><table>";
+		try {
+			File file = new File(path);
+			
+			if (file.exists()){
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				int cont = 1;
+				String line;			
+				while (((line=br.readLine())!=null) && (cont<=maxUsers)) {
+					int index = line.indexOf( ";" );           // Position of ;.
+		    		String name = line.substring( 0, index );  // String from 0 to ;.
+		    		String score = line.substring(index+1,line.length());
+					
+                    String photo_url = HandlerSolr.getParameter("profile_url",name);
+							
+					content += "<tr>";
+					content += "<td><img src='" + photo_url + "'></img></td>";
+					content += "<td align=left valign=top>";
+					content += "<B>" + name + "</B><br>";
+					content += "<I>" + "descripcion" + "</I></td>";
+					content += "<td><font size=2>" + score + "</font></td>";
+					content += "</tr>";	
+					
+					cont++;
+				}
+				content += "</table></body></html>";
+				br.close();		
+				
 			} else {
 				content = "The file " + path + " doesnt exist.";
 			}
