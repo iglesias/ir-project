@@ -19,6 +19,7 @@ public class PanelTabPageRank extends JPanel{
 	 */
 	private PanelSelectionUniverse selectionUniverse;
 	private PanelSelectionMethod selectionMethod;
+	private PanelSelectionOption selectionOption;
 	private PanelShowPageRank showPagerank;
 
 	public PanelTabPageRank(){
@@ -28,6 +29,7 @@ public class PanelTabPageRank extends JPanel{
 		// ----------------------------------------------------------------------------
 		selectionUniverse = new PanelSelectionUniverse();		
 		selectionMethod = new PanelSelectionMethod();
+		selectionOption = new PanelSelectionOption();
 		showPagerank = new PanelShowPageRank();
 		
 		// ----------------------------------------------------------------------------
@@ -38,6 +40,8 @@ public class PanelTabPageRank extends JPanel{
 		selectionUniverse.setMinimumSize(new Dimension(125,150));
 		selectionMethod.setSize(new Dimension(125,150));
 		selectionMethod.setMinimumSize(new Dimension(125,150));
+		selectionOption.setSize(new Dimension(125,150));
+		selectionOption.setMinimumSize(new Dimension(125,150));
 
 		// ----------------------------------------------------------------------------
 		//                         DEFINE GRIDBAGCONSTRAINTS
@@ -56,19 +60,27 @@ public class PanelTabPageRank extends JPanel{
 		infoMethod.weighty = 0.0;
 		infoMethod.fill = GridBagConstraints.BOTH;
 		
+		GridBagConstraints infoOption = new GridBagConstraints();
+		infoOption.gridx = 0;
+		infoOption.gridy = 2;
+		infoOption.weightx = 0.0;
+		infoOption.weighty = 0.0;
+		infoOption.fill = GridBagConstraints.BOTH;
+		
 		GridBagConstraints infoPagerank = new GridBagConstraints();
 		infoPagerank.gridx = 1;
 		infoPagerank.gridy = 0;
 		infoPagerank.weightx = 1.0;
 		infoPagerank.weighty = 1.0;
 		infoPagerank.fill = GridBagConstraints.BOTH;
-		infoPagerank.gridheight = 2;
+		infoPagerank.gridheight = 3;
 
 		// ----------------------------------------------------------------------------
 		//                    ADD THE COMPONENTS TO THE CONTAINER
 		// ----------------------------------------------------------------------------
 		this.add(selectionUniverse,infoUniverse);
 		this.add(selectionMethod,infoMethod);
+		this.add(selectionOption,infoOption);
 		this.add(showPagerank,infoPagerank);
 		
 		// ----------------------------------------------------------------------------
