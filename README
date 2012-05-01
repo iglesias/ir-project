@@ -1,0 +1,16 @@
+
+@Author : Bernard Hernandez
+
+Execute SOLR :
+
+  Start Server.
+  1.- Go to apache-solr-3.6.0/example/
+  2.- Command : java -jar start-jar
+  
+  Add Json Document.
+  1.- Go to apache-solr-3.6.0/example/exampledocs
+  2.- Command : curl 'http://localhost:8983/solr/update/json?commit=true' --data-binary @filename.json -H 'Content-type:application/json'
+  
+  Remove all documents.
+  1.- Go to apache-solr-3.6.0/example/exampledocs
+  2.- Command : java -Ddata=args -jar post.jar "<delete><query>id:*</query></delete>"
