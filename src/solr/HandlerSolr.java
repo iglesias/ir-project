@@ -1,5 +1,7 @@
 package solr;
 
+import gui.PageRankGUI;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -22,8 +24,10 @@ public class HandlerSolr {
 	public static String getRetrievedTweets(String parameter, String value){
 		try {
 			// Get response information in json format.
-			URL url = new URL("http://localhost:8983/solr/select?q=" + parameter + ":" + value + 
-					          "&wt=json&indent=true");
+			URL url = new URL("http://localhost:8983/solr/select?" +
+			                  "q=" + parameter + ":" + value + "&wt=json" +
+					          "&rows=" + PageRankGUI.maxDocumentsRetrieved + 
+					          "&fl=*,score&sort=score%20desc" + "&indent=true");
 			BufferedReader urlInput = new BufferedReader(new InputStreamReader(url.openStream()));      	
 	    	
 			// Read all the content in variable content.
@@ -44,6 +48,9 @@ public class HandlerSolr {
 				System.out.println("Response : " + jObject.get("response"));
 				System.out.println("Docs : " + ((JSONObject) jObject.get("response")).get("docs"));	
 			}
+			
+			// Set the number of retrieved documents.
+			PageRankGUI.actRetrieved = String.valueOf(((JSONObject) jObject.get("response")).get("numFound"));
 			
 			// Build a json Array with the objects we have in "docs".
 			JSONArray jArray = (JSONArray) ((JSONObject) jObject.get("response")).get("docs");
@@ -79,9 +86,11 @@ public class HandlerSolr {
 				JSONObject tweet = tweetsArray.getJSONObject(i);
 				
 				content += "<tr>";
-				content += "<td><img src='" + tweet.get("profile_image_url") + "'></img></td>";
-				content += "<td><B>" + tweet.get("screen_name") + "</B><br>";
+				content += "<td><img src='" + tweet.get("profile_url") + "'></img></td>";
+				content += "<td align=left valign=top>";
+				content += "<B>" + tweet.get("screen_name") + "</B><br>";
 				content += "<I>" + tweet.get("text") + "</I></td>";
+				content += "<td><font size=2>" + tweet.get("score") + "</font></td>";
 				content += "</tr>";
 				
 			} catch (JSONException e) {
