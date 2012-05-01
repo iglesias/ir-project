@@ -32,8 +32,6 @@ public class PanelShowPageRank extends JPanel{
 	private JLabel titleRetweets;
 	private static JEditorPane textTweets;
 	private static JEditorPane textRetweets;
-	private JButton buttonTweets;
-	private JButton buttonRetweets;
 	
 	/**
 	 * Constructor.
@@ -49,8 +47,6 @@ public class PanelShowPageRank extends JPanel{
 		textRetweets = new JEditorPane("text/html","");
 		textTweets.setEditable(false);
 		textRetweets.setEditable(false);
-		buttonTweets = new JButton("Recompute");
-		buttonRetweets = new JButton("Recompute");
 		
 		JScrollPane scrollTweets = new JScrollPane(textTweets);
 		JScrollPane scrollRetweets = new JScrollPane(textRetweets);
@@ -95,16 +91,6 @@ public class PanelShowPageRank extends JPanel{
 		infoScrollRetweets.weighty = 1.0;
 		infoScrollRetweets.fill = GridBagConstraints.BOTH;
 		
-		GridBagConstraints infoButtonTweets = new GridBagConstraints();
-		infoButtonTweets.gridx = 0;
-		infoButtonTweets.gridy = 2;
-		infoButtonTweets.fill = GridBagConstraints.CENTER;
-		
-		GridBagConstraints infoButtonRetweets = new GridBagConstraints();
-		infoButtonRetweets.gridx = 1;
-		infoButtonRetweets.gridy = 2;
-		infoButtonRetweets.fill = GridBagConstraints.CENTER;
-		
 		// ----------------------------------------------------------------------------
 		//                    ADD THE COMPONENTS TO THE CONTAINER
 		// ----------------------------------------------------------------------------
@@ -112,8 +98,6 @@ public class PanelShowPageRank extends JPanel{
 		this.add(titleRetweets,infoTitleRetweets);
 		this.add(scrollTweets,infoScrollTweets);
 		this.add(scrollRetweets,infoScrollRetweets);
-		this.add(buttonTweets,infoButtonTweets);
-		this.add(buttonRetweets,infoButtonRetweets);
 		
 	}
 	
