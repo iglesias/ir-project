@@ -64,6 +64,11 @@ public class PageRank{
     static boolean DEBUG = false;
     
     /**
+     *   Variable only followers.
+     */
+    static boolean onlyFollowers = false;
+    
+    /**
      * The pageRanks vector used when we created the page rank.
      */
     double[] pi = null;
@@ -143,15 +148,14 @@ public class PageRank{
     		Integer fromdoc = docNumber.get( title );  // Number for a doc name.
     		
             // If is a previously unseen doc, add it to the table.
-    		if (followers.contains(title)) {
+    		if (onlyFollowers && !followers.contains(title))
+    			continue;
+    		else
     			if (fromdoc == null)  {	
     				fromdoc = fileIndex++;
     				docNumber.put( title, fromdoc );
     				docName[fromdoc] = title;
     			}
-	    	} else {
-	    		continue;
-	    	}
     		
     		// Check all outlinks.
     		StringTokenizer tok = new StringTokenizer( line.substring(index+1), "," );
@@ -168,19 +172,17 @@ public class PageRank{
     		    // Counting.
     		    if (nCalls>1) numberUsersMoreThanOneRecall++;
     		    else numberUsersOneRecall++;
-    		    
-    		    
+    		     
                 // If is a previously unseen doc, add it to the table.
-    		    if (followers.contains(otherTitle)) {
+    		    if (onlyFollowers && !followers.contains(otherTitle))
+    		    	continue;
+    		    else
     		    	if (otherDoc == null) {
     		    		otherDoc = fileIndex++;
     		    		docNumber.put( otherTitle, otherDoc );
     		    		docName[otherDoc] = otherTitle;
     		    	}
-    		    } else {
-    		    	continue;
-    		    }
-
+    		   
     		    // Set probability to 0, means that there is an outlink.
     		    if ( link.get(fromdoc) == null ) 
     			    link.put(fromdoc, new Hashtable<Integer,Integer>());
@@ -675,6 +677,7 @@ public class PageRank{
                     DEBUG = true;                                                // Activate DEBUG.
                     System.err.println(">>>> DEBUG mode activated");
             	} else {
+            		onlyFollowers = true;
             		fillFollowersList(args[3]);
             	}
             	new PageRank(args[0],args[1],Integer.parseInt(args[2]));
