@@ -97,6 +97,13 @@ public class PageRank{
     		                        new Hashtable<Integer,Hashtable<Integer,Integer>>();
 
     
+    /**
+     *  ArrayList that contains the names of all the followers to later choose if
+     *  do the pagerank only taking in account followers, or also another twitter
+     *  users.
+     */
+    static ArrayList<String> followers = new ArrayList<String>();
+    
 
     /**
      * Constructor.
@@ -136,12 +143,16 @@ public class PageRank{
     		Integer fromdoc = docNumber.get( title );  // Number for a doc name.
     		
             // If is a previously unseen doc, add it to the table.
-    		if ( fromdoc == null ) {	
-    		    fromdoc = fileIndex++;
-    		    docNumber.put( title, fromdoc );
-    		    docName[fromdoc] = title;
-    		}
-
+    		if (followers.contains(title)) {
+    			if (fromdoc == null)  {	
+    				fromdoc = fileIndex++;
+    				docNumber.put( title, fromdoc );
+    				docName[fromdoc] = title;
+    			}
+	    	} else {
+	    		continue;
+	    	}
+    		
     		// Check all outlinks.
     		StringTokenizer tok = new StringTokenizer( line.substring(index+1), "," );
     		while ( tok.hasMoreTokens() && fileIndex<MAX_NUMBER_OF_DOCS ) {
@@ -158,11 +169,16 @@ public class PageRank{
     		    if (nCalls>1) numberUsersMoreThanOneRecall++;
     		    else numberUsersOneRecall++;
     		    
+    		    
                 // If is a previously unseen doc, add it to the table.
-    		    if ( otherDoc == null ) {
-        			otherDoc = fileIndex++;
-        			docNumber.put( otherTitle, otherDoc );
-        			docName[otherDoc] = otherTitle;
+    		    if (followers.contains(otherTitle)) {
+    		    	if (otherDoc == null) {
+    		    		otherDoc = fileIndex++;
+    		    		docNumber.put( otherTitle, otherDoc );
+    		    		docName[otherDoc] = otherTitle;
+    		    	}
+    		    } else {
+    		    	continue;
     		    }
 
     		    // Set probability to 0, means that there is an outlink.
@@ -614,6 +630,30 @@ public class PageRank{
             }
         }    
     }
+   
+   /**
+    * Method that fill the arrayList with the followers.
+    */
+   public static void fillFollowersList(String followersFilename){
+	   
+	   try {
+		   	// Reading the file (followers).
+		   	System.err.print( "Reading followers file... " );
+		   	BufferedReader in = new BufferedReader( new FileReader( followersFilename ));
+		   	String line;
+		   	while ((line = in.readLine()) != null) {
+			     int index = line.indexOf( ";" );                      // Position of ;.
+			     String name = line.substring(index+1,line.length());  // String from 0 to ;.
+			     followers.add(name);
+		    }
+		 
+	   } catch ( FileNotFoundException e ) {
+		    System.err.println( "File " + followersFilename + " not found!" );
+	   } catch ( IOException e ) {
+		    System.err.println( "Error reading file " + followersFilename );
+	   }
+	   System.err.println( followers.size() + " followers have been read.");
+   }
     
     /************************************************************************
      *                                MAIN
@@ -634,6 +674,8 @@ public class PageRank{
             	if (args[3].equals("debug") ) {                                  // If debug in args[3]
                     DEBUG = true;                                                // Activate DEBUG.
                     System.err.println(">>>> DEBUG mode activated");
+            	} else {
+            		fillFollowersList(args[3]);
             	}
             	new PageRank(args[0],args[1],Integer.parseInt(args[2]));
             }
