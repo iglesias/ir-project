@@ -11,6 +11,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -19,7 +20,10 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import solr.HandlerSolr;
 
@@ -33,8 +37,10 @@ public class PanelTabSearch extends JPanel{
 	private JLabel icon;
 	private JTextField searchBox;
 	private JButton searchButton;
+	private JSlider sliderBar;
 	private JLabel nRetrieved;
 	private JEditorPane retrievedTweets;
+	private JScrollPane scrollRetrievedTweets;
 	
 	private JPanel checkPanel;
 	private JCheckBox checkAuthor;
@@ -50,16 +56,19 @@ public class PanelTabSearch extends JPanel{
 		icon = new JLabel(new ImageIcon(PageRankGUI.iconPath));
 		searchBox = new JTextField("Query...");
 		searchButton = new JButton("Search");
+		sliderBar = new JSlider(0,100,50);
 		nRetrieved = new JLabel("Retrieved:" + PageRankGUI.actRetrieved);
 		retrievedTweets = new JEditorPane("text/html","");
 		retrievedTweets.setEditable(false);
-		JScrollPane scrollRetrievedTweets = new JScrollPane(retrievedTweets);
+		scrollRetrievedTweets = new JScrollPane(retrievedTweets);
 		
 		// ----------------------------------------------------------------------------
 		//                            SOME CONFIGURATIONS
 		// ----------------------------------------------------------------------------
 		//this.icon.setSize(new Dimension(100,400));
-		
+		sliderBar.setSize(200,20);
+		sliderBar.setMinimumSize(new Dimension(200,20));
+
 		checkPanel = new JPanel();
 		checkAuthor = new JCheckBox("Author");
 		checkHashtag = new JCheckBox("Hashtag");
@@ -128,6 +137,15 @@ public class PanelTabSearch extends JPanel{
 		infoScroll.fill = GridBagConstraints.BOTH;
 		infoScroll.gridwidth = 2;
 		
+		GridBagConstraints infoSliderBar = new GridBagConstraints();
+		infoSliderBar.insets = new Insets(3,3,3,3);
+		infoSliderBar.gridx = 0;
+		infoSliderBar.gridy = 5;
+		infoSliderBar.weightx = 0.0;
+		infoSliderBar.weighty = 0.0;
+		infoSliderBar.fill = GridBagConstraints.CENTER;
+		infoScroll.gridwidth = 3;
+		
 		// ----------------------------------------------------------------------------
 		//                    ADD THE COMPONENTS TO THE CONTAINER
 		// ----------------------------------------------------------------------------
@@ -137,6 +155,7 @@ public class PanelTabSearch extends JPanel{
 		this.add(checkPanel,infoCheckPanel);
 		this.add(nRetrieved,infonRetrieved);
 		this.add(scrollRetrievedTweets,infoScroll);
+		this.add(sliderBar,infoSliderBar);
 		
 		// ----------------------------------------------------------------------------
 		//                              EVENTS HANDLERS
@@ -155,6 +174,36 @@ public class PanelTabSearch extends JPanel{
 			}
 		});
 		
+		this.sliderBar.addChangeListener(new ChangeListener(){
+			public void stateChanged(ChangeEvent e) {
+				int value = ((JSlider) e.getSource()).getValue();
+				System.out.println(value);
+				reloadRetrievedTweets(value);
+			}
+		});
+		
+	}
+	
+	/**
+	 * Reload retweets.
+	 * @param value
+	 */
+	 
+	@SuppressWarnings("unchecked")
+	public void reloadRetrievedTweets(int value){
+		
+		// Set the score.
+		for (int i=0; i<PageRankGUI.actTweetsRetrieved.size(); i++)
+		    PageRankGUI.actTweetsRetrieved.get(i).computeFinalScore(value);
+		
+		// Reoorder.
+		Collections.sort(PageRankGUI.actTweetsRetrieved);
+		
+		// Convert to html with the right value.
+		String content = HandlerSolr.convertTweetsToHTML();
+		
+		// Set the content in the JEditorPane.
+		retrievedTweets.setText(content);
 	}
 	
 	/**
@@ -165,11 +214,18 @@ public class PanelTabSearch extends JPanel{
 		// Get the query.
 		String query = getQuerySelected();
 		String value = getValueSelected();
-		
 		System.out.println(query + "-" + value);
 		
-		// Get the retrieved tweets.
-		String content = HandlerSolr.getRetrievedTweets(query,value);
+		// Save the tweets that matches with the query.
+		HandlerSolr.saveRetrievedTweets(query, value);
+		
+		// Set the score.
+		for (int i=0; i<PageRankGUI.actTweetsRetrieved.size(); i++) {
+			Tweet t = PageRankGUI.actTweetsRetrieved.get(i);
+			t.setFinalScore(t.getTFIDFScore());
+		}
+		
+		String content = HandlerSolr.convertTweetsToHTML();
 		
 		// Set the value of retrieved tweets.
 		nRetrieved.setText("Retrieved:" + PageRankGUI.actRetrieved);
@@ -196,8 +252,7 @@ public class PanelTabSearch extends JPanel{
 		String value = searchBox.getText().replace(" ","+");
 		if (value.equals("")) value = "*";
 		return value;
-	}
-	
+	}	
 	
 }
 

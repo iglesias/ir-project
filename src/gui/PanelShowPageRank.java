@@ -10,7 +10,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
-import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -111,18 +110,17 @@ public class PanelShowPageRank extends JPanel{
 		                       PageRankGUI.pagerankMentionedPath + "/" +
 		                       PageRankGUI.actOption + "/" + 
 		                       PageRankGUI.actMethod + ".txt";
-		
-		if (PageRankGUI.actOption.equals("all"))
-			textTweets.setText(HandlerGUI.getContentRank(pathMentioned));
-		else
-			textTweets.setText(HandlerGUI.getContentRankHTML(pathMentioned));
+		textTweets.setText(HandlerGUI.getContentRankHTML(pathMentioned, true));
 		
 		// Set the pagerank in pagerank retweets.
 		String pathRetweeted = PageRankGUI.rootPath + PageRankGUI.actUniverse + 
         					   PageRankGUI.pagerankRetweetedPath + "/" +
         		               PageRankGUI.actOption + "/" +  
         					   PageRankGUI.actMethod + ".txt";
-		textRetweets.setText(HandlerGUI.getContentRank(pathRetweeted));	
+		textRetweets.setText(HandlerGUI.getContentRankHTML(pathRetweeted,false));	
+		
+		// Finally we set up the new pagerank values to the tweets.
+		HandlerGUI.setPagerankScoresToTweets();
 	}
 	
 }

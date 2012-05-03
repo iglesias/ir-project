@@ -1,6 +1,7 @@
 package solr;
 
 import gui.PageRankGUI;
+import gui.Tweet;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -19,14 +20,26 @@ public class HandlerSolr {
 	public final static boolean DEBUG = false;
 	
 	/**
-	 * Method that given the parameters of a query return the objects.
+	 * Method that given the parameters of a query, store in the static variable
+	 * actTweetsRetrieved the first maxDocumentsRetrieved tweets that  solr give
+	 * us.
+	 * 
+	 * Format of the json response:
+	 *  { "responseHeader":{...info...},
+	 *	  "response":{ "numFound":2,"start":0,"docs":[{r1},{r2},...{rn}]}
+	 *	} 
+	 * 
 	 */
-	public static String getRetrievedTweets(String parameter, String value){
+	public static void saveRetrievedTweets(String parameter, String value){
+		
 		try {
+			// Remove the content of the actual tweets.
+			PageRankGUI.actTweetsRetrieved.clear();
+			
 			// Get response information in json format.
 			URL url = new URL("http://localhost:8983/solr/select?" +
 			                  "q=" + parameter + ":" + value + "&wt=json" +
-					          "&rows=" + PageRankGUI.maxDocumentsRetrieved + 
+					          "&rows=" + PageRankGUI.maxRetrieved + 
 					          "&fl=*,score&sort=score%20desc" + "&indent=true");
 			BufferedReader urlInput = new BufferedReader(new InputStreamReader(url.openStream()));      	
 	    	
@@ -36,10 +49,7 @@ public class HandlerSolr {
 			while ((linea = urlInput.readLine()) != null)
 				content += linea;
 			
-			// Build a json Object with the response.
-			// { "responseHeader":{...info...},
-			//  "response":{ "numFound":2,"start":0,"docs":[{r1},{r2},...{rn}]}
-			// } 
+			// Build a json Object with the all response.
 			JSONObject jObject = new JSONObject(content);
 			
 			// --DEBUG
@@ -55,58 +65,69 @@ public class HandlerSolr {
 			// Build a json Array with the objects we have in "docs".
 			JSONArray jArray = (JSONArray) ((JSONObject) jObject.get("response")).get("docs");
 
+			// Fill the actual retrieved tweets.
+			for (int i=0; i<jArray.length(); i++){
+				try {
+					// Get the object.
+					JSONObject tweet = jArray.getJSONObject(i);
+					
+					// Get the parameters.
+					String profile_url = (String) tweet.get("profile_url");
+					String author = (String) tweet.get("screen_name");
+					String text = (String) tweet.get("text");
+					Double tfidfScore = (Double) tweet.get("score");
+					Double pagerankMentionScore = PageRankGUI.pagerankScoresMention.get(author);
+					Double pagerankRetweetScore = PageRankGUI.pagerankScoresRetweet.get(author);
+					
+					// Add to the list.
+					PageRankGUI.actTweetsRetrieved.add( new Tweet(profile_url, author, text, tfidfScore,
+							pagerankMentionScore, pagerankRetweetScore));
+						
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+			
 			// Show the number of objects returned.
-			return convertToHTML(jArray);
+			System.out.println("actTweetsRetrieved : " + PageRankGUI.actTweetsRetrieved.size());
 		
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-		return "No retrieved documents";
+		
 	}
-	
 	
 	/**
 	 * Convert to a nice HTML code.
-	 * HTML document :
-	 * <html>
-	 * <head></head>
-	 * <body> 
-	 *	   <p><hr></hr>
-	 *	   <img src="url" align="left" hspace="10">
-	 *	   <B> userName </B> userLoginName Data </br>
-	 *   	<I>Tweet content</I>
-	 *	   </p>
-	 *</body>
 	 */
-	public static String convertToHTML(JSONArray tweetsArray){
+	public static String convertTweetsToHTML(){
+
+		// Header.
+		String content = "<html><head></head><body><table border=1>";
 		
-		String content = "<html><head></head><body><table>";
-		for (int i=0; i<tweetsArray.length(); i++){
-			try {
-				JSONObject tweet = tweetsArray.getJSONObject(i);
-				
-				content += "<tr>";
-				content += "<td><img src='" + tweet.get("profile_url") + "'></img></td>";
-				content += "<td align=left valign=top>";
-				content += "<B>" + tweet.get("screen_name") + "</B><br>";
-				content += "<I>" + tweet.get("text") + "</I></td>";
-				content += "<td><font size=2>" + tweet.get("score") + "</font></td>";
-				content += "</tr>";
-				
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}
+		// Set the number of tweets we will show in the JEditorPane.
+		int limit;
+		if (PageRankGUI.actTweetsRetrieved.size() < Integer.parseInt(PageRankGUI.maxDocumentsRetrieved))
+			limit = PageRankGUI.actTweetsRetrieved.size();
+		else
+			limit = Integer.parseInt(PageRankGUI.maxDocumentsRetrieved);
 		
+		// All the tweets.
+		for (int i=0; i<limit; i++) 
+				content += PageRankGUI.actTweetsRetrieved.get(i).converToHTML();
+		
+		// Footer.
 		content += "</table></body></html>";
 		
 		return content;
-			
 	}
 	
 	
 	/**
 	 * Method that given the parameters of a query return the objects.
+	 * If the user doesnt exist and the parameters is:
+	 *   - photo : default_photo.
+	 *   - description : Is not a follower.
 	 */
 	public static String getParameter(String parameter, String user){
 		try {			
@@ -140,10 +161,7 @@ public class HandlerSolr {
 		return "No retrieved documents";
 	}
 	
-	public static void main(String[] args){
-		
-		getRetrievedTweets("author","Rick");
-	
+	public static void main(String[] args){	
 	}
 	
 }
