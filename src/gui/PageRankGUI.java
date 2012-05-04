@@ -30,7 +30,7 @@ public class PageRankGUI {
 	public static String actRetrieved = "0";
 	public static int actPagerankMentionPercent = 50; 
 	public static int actPagerankPercent = 50;
-	public static boolean pageRankSelected = false;
+	public static int actQueryType = 0;
 	
 	// Options to choose for the admin.
 	public static String maxDocumentsLoad = "10";

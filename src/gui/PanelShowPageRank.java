@@ -105,8 +105,10 @@ public class PanelShowPageRank extends JPanel{
 	 */
 	public static void loadPageRank(){
 		
-		// Set that the pagerank has been selected correctly.
-		PageRankGUI.pageRankSelected = true;
+		// Enable all the options of the pagerank because has been selected.
+		PanelTabSearch.sliderLabel.setText("");
+		PanelTabSearch.sliderBarPR.setEnabled(true);
+		PanelTabSearch.sliderBarTFIDF.setEnabled(true);
 		
 		// Set the pagerank in pagerank @user.
 		String pathMentioned = PageRankGUI.rootPath + PageRankGUI.actUniverse + 
