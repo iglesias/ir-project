@@ -2,7 +2,6 @@
 @Author : Bernard Hernandez
 
 Execute SOLR :
-
   Start Server.
   1.- Go to apache-solr-3.6.0/example/
   2.- Command : java -jar start-jar
@@ -14,3 +13,20 @@ Execute SOLR :
   Remove all documents.
   1.- Go to apache-solr-3.6.0/example/exampledocs
   2.- Command : java -Ddata=args -jar post.jar "<delete><query>id:*</query></delete>"
+  
+  
+  
+Structure Data folder (for the interface):
+  1 - data folder should be at the same level as src.
+  2 - data
+         |_ Universe1
+         |_ Universe2
+         |_ BowieState
+                     |_ pagerank 
+                               |_ mentioned
+                               |          |_ all
+                               |          |    |_ PowerIteration.txt, MonteCarlo1.txt, ... MonteCarlo5.txt 
+                               |          |_ followers
+                               |               |_ PowerIteration.txt, MonteCarlo1.txt, ... MonteCarlo5.txt 
+                               |_ retweeted
+                     
