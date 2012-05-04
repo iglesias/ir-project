@@ -4,6 +4,7 @@
  ***********************************************************************/
 package gui;
 
+@SuppressWarnings("rawtypes")
 public class Tweet implements Comparable{
 
 	/**
@@ -13,8 +14,8 @@ public class Tweet implements Comparable{
 	private String author = "";
 	private String text = "";
 	private Double tfidfScore = 0.0;
-	private Double pagerankMentionScore = 0.0;
-	private Double pagerankRetweetScore = 0.0;
+	private Double pagerankMentionScore = null;
+	private Double pagerankRetweetScore = null;
 	
 	private Double finalScore = 0.0;
 	
@@ -55,11 +56,28 @@ public class Tweet implements Comparable{
 	/**
 	 * Get the value of the total score.
 	 */
-	public void computeFinalScore(int mentionPercent){
-		if (this.pagerankMentionScore != null) {
-			this.finalScore = ((100-mentionPercent)*this.pagerankMentionScore)/100;
-		} else
-			this.finalScore = this.tfidfScore;
+	public void computeFinalScore(){
+		
+		// Global values (from percent to norm).
+		double mentionPercent = PageRankGUI.actPagerankMentionPercent*0.01;
+		double pagerankPercent = PageRankGUI.actPagerankPercent*0.01;
+		
+		// Calculate the score between Mentioned vs Retweeted.
+		double score1 = 0.0;
+		if ((this.pagerankMentionScore==null) && (this.pagerankRetweetScore==null)){
+			score1 = this.tfidfScore;
+		} else {
+			if (this.pagerankMentionScore==null)
+				score1 = this.pagerankRetweetScore;
+			else
+				if (this.pagerankRetweetScore==null)
+					score1 = this.pagerankMentionScore;
+				else
+					score1 = (1-mentionPercent)*this.pagerankMentionScore + (mentionPercent*this.pagerankRetweetScore);
+		}
+		
+		// Calculate the score between Pagerank vs TFIDF.
+		this.finalScore = (1-pagerankPercent)*score1 + (pagerankPercent*this.tfidfScore);
 	}
 	
 	/**

@@ -30,7 +30,7 @@ public class HandlerSolr {
 	 *	} 
 	 * 
 	 */
-	public static void saveRetrievedTweets(String parameter, String value){
+	public static void saveRetrievedTweets(String formedQuery){
 		
 		try {
 			// Remove the content of the actual tweets.
@@ -38,11 +38,13 @@ public class HandlerSolr {
 			
 			// Get response information in json format.
 			URL url = new URL("http://localhost:8983/solr/select?" +
-			                  "q=" + parameter + ":" + value + "&wt=json" +
+			                  "q=" + formedQuery + "&wt=json" +
 					          "&rows=" + PageRankGUI.maxRetrieved + 
 					          "&fl=*,score&sort=score%20desc" + "&indent=true");
 			BufferedReader urlInput = new BufferedReader(new InputStreamReader(url.openStream()));      	
 	    	
+			System.out.println(url.toString());
+			
 			// Read all the content in variable content.
 			String content = "";
 			String linea = null;
@@ -107,10 +109,10 @@ public class HandlerSolr {
 		
 		// Set the number of tweets we will show in the JEditorPane.
 		int limit;
-		if (PageRankGUI.actTweetsRetrieved.size() < Integer.parseInt(PageRankGUI.maxDocumentsRetrieved))
+		if (PageRankGUI.actTweetsRetrieved.size() < Integer.parseInt(PageRankGUI.maxDocumentsLoad))
 			limit = PageRankGUI.actTweetsRetrieved.size();
 		else
-			limit = Integer.parseInt(PageRankGUI.maxDocumentsRetrieved);
+			limit = Integer.parseInt(PageRankGUI.maxDocumentsLoad);
 		
 		// All the tweets.
 		for (int i=0; i<limit; i++) 

@@ -105,6 +105,9 @@ public class PanelShowPageRank extends JPanel{
 	 */
 	public static void loadPageRank(){
 		
+		// Set that the pagerank has been selected correctly.
+		PageRankGUI.pageRankSelected = true;
+		
 		// Set the pagerank in pagerank @user.
 		String pathMentioned = PageRankGUI.rootPath + PageRankGUI.actUniverse + 
 		                       PageRankGUI.pagerankMentionedPath + "/" +

@@ -11,6 +11,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.Collections;
 
 import javax.swing.ImageIcon;
@@ -37,10 +43,14 @@ public class PanelTabSearch extends JPanel{
 	private JLabel icon;
 	private JTextField searchBox;
 	private JButton searchButton;
-	private JSlider sliderBar;
 	private JLabel nRetrieved;
 	private JEditorPane retrievedTweets;
 	private JScrollPane scrollRetrievedTweets;
+	
+	private JLabel sliderLabel;
+	private JSlider sliderBarPR;
+	private JSlider sliderBarTFIDF;
+	
 	
 	private JPanel checkPanel;
 	private JCheckBox checkAuthor;
@@ -56,18 +66,22 @@ public class PanelTabSearch extends JPanel{
 		icon = new JLabel(new ImageIcon(PageRankGUI.iconPath));
 		searchBox = new JTextField("Query...");
 		searchButton = new JButton("Search");
-		sliderBar = new JSlider(0,100,50);
 		nRetrieved = new JLabel("Retrieved:" + PageRankGUI.actRetrieved);
 		retrievedTweets = new JEditorPane("text/html","");
 		retrievedTweets.setEditable(false);
 		scrollRetrievedTweets = new JScrollPane(retrievedTweets);
+		sliderLabel = new JLabel("(PR not selected!)");
+		sliderBarPR = new JSlider(0,100,50);
+		sliderBarTFIDF = new JSlider(0,100,50);
 		
 		// ----------------------------------------------------------------------------
 		//                            SOME CONFIGURATIONS
 		// ----------------------------------------------------------------------------
 		//this.icon.setSize(new Dimension(100,400));
-		sliderBar.setSize(200,20);
-		sliderBar.setMinimumSize(new Dimension(200,20));
+		sliderBarPR.setMinimumSize(new Dimension(200,20));
+		sliderBarTFIDF.setMinimumSize(new Dimension(200,20));
+		sliderBarPR.setMaximumSize(new Dimension(200,20));
+		sliderBarTFIDF.setMaximumSize(new Dimension(200,20));
 
 		checkPanel = new JPanel();
 		checkAuthor = new JCheckBox("Author");
@@ -77,7 +91,7 @@ public class PanelTabSearch extends JPanel{
 		checkDate = new JCheckBox("Date");
 		checkPanel.add(checkAuthor);
 		checkPanel.add(checkText);
-		//checkPanel.add(checkDescription);
+		checkPanel.add(checkDescription);
 		//checkPanel.add(checkHashtag);
 		//checkPanel.add(checkDate);
 				
@@ -90,7 +104,7 @@ public class PanelTabSearch extends JPanel{
 		//                         DEFINE GRIDBAGCONSTRAINTS
 		// ----------------------------------------------------------------------------
 		GridBagConstraints infoIcon = new GridBagConstraints();
-		infoIcon.insets = new Insets(3,3,3,3);
+		infoIcon.insets = new Insets(3,3,3,3); 
 		infoIcon.gridx = 0;
 		infoIcon.gridy = 0;
 		infoIcon.weightx = 1.0;
@@ -103,23 +117,25 @@ public class PanelTabSearch extends JPanel{
 		infoSearchBox.weightx = 1.0;
 		infoSearchBox.weighty = 0.0;
 		infoSearchBox.fill = GridBagConstraints.BOTH;
+		infoSearchBox.gridwidth = 2;
 		
 		GridBagConstraints infoSearchButton = new GridBagConstraints();
-		infoSearchButton.insets = new Insets(20,0,3,50);
-		infoSearchButton.gridx = 1;
+		infoSearchButton.insets = new Insets(20,0,3,20);
+		infoSearchButton.gridx = 2;
 		infoSearchButton.gridy = 1;
 		infoSearchButton.weightx = 0.0;
 		infoSearchButton.weighty = 0.0;
-		infoSearchButton.fill = GridBagConstraints.CENTER;
+		infoSearchButton.anchor= GridBagConstraints.WEST;
 		
 		GridBagConstraints infoCheckPanel = new GridBagConstraints();
 		infoCheckPanel.gridx = 0;
 		infoCheckPanel.gridy = 2;
 		infoCheckPanel.weightx = 0.0;
 		infoCheckPanel.weighty = 0.0;
-		infoCheckPanel.gridwidth = 2;
+		infoCheckPanel.gridwidth = 3;
 		infoCheckPanel.anchor = GridBagConstraints.CENTER;
 		infoCheckPanel.fill = GridBagConstraints.CENTER;
+		infoCheckPanel.gridwidth = 3;
 		
 		GridBagConstraints infonRetrieved = new GridBagConstraints();
 		infonRetrieved.insets = new Insets(0,0,2,0);
@@ -135,16 +151,31 @@ public class PanelTabSearch extends JPanel{
 		infoScroll.weightx = 1.0;
 		infoScroll.weighty = 1.0;
 		infoScroll.fill = GridBagConstraints.BOTH;
-		infoScroll.gridwidth = 2;
-		
-		GridBagConstraints infoSliderBar = new GridBagConstraints();
-		infoSliderBar.insets = new Insets(3,3,3,3);
-		infoSliderBar.gridx = 0;
-		infoSliderBar.gridy = 5;
-		infoSliderBar.weightx = 0.0;
-		infoSliderBar.weighty = 0.0;
-		infoSliderBar.fill = GridBagConstraints.CENTER;
 		infoScroll.gridwidth = 3;
+		
+		GridBagConstraints infoSliderBarPR = new GridBagConstraints();
+		infoSliderBarPR.insets = new Insets(3,3,3,3);
+		infoSliderBarPR.gridx = 0;
+		infoSliderBarPR.gridy = 5;
+		infoSliderBarPR.weightx = 0.5;
+		infoSliderBarPR.weighty = 0.0;
+		infoSliderBarPR.anchor = GridBagConstraints.EAST;
+		
+		GridBagConstraints infoSliderBarTFIDF = new GridBagConstraints();
+		infoSliderBarTFIDF.insets = new Insets(3,3,3,3);
+		infoSliderBarTFIDF.gridx = 1;
+		infoSliderBarTFIDF.gridy = 5;
+		infoSliderBarTFIDF.weightx = 0.5;
+		infoSliderBarTFIDF.weighty = 0.0;
+		infoSliderBarTFIDF.anchor = GridBagConstraints.WEST;
+		
+		GridBagConstraints infoSliderLabel= new GridBagConstraints();
+		infoSliderLabel.insets = new Insets(3,3,3,3);
+		infoSliderLabel.gridx = 2;
+		infoSliderLabel.gridy = 5;
+		infoSliderLabel.weightx = 0.0;
+		infoSliderLabel.weighty = 0.0;
+		infoSliderLabel.anchor = GridBagConstraints.WEST;
 		
 		// ----------------------------------------------------------------------------
 		//                    ADD THE COMPONENTS TO THE CONTAINER
@@ -154,8 +185,10 @@ public class PanelTabSearch extends JPanel{
 		this.add(searchButton,infoSearchButton);
 		this.add(checkPanel,infoCheckPanel);
 		this.add(nRetrieved,infonRetrieved);
-		this.add(scrollRetrievedTweets,infoScroll);
-		this.add(sliderBar,infoSliderBar);
+		this.add(scrollRetrievedTweets,infoScroll);		
+		this.add(sliderBarPR,infoSliderBarPR);
+		this.add(sliderBarTFIDF,infoSliderBarTFIDF);
+		this.add(sliderLabel,infoSliderLabel);
 		
 		// ----------------------------------------------------------------------------
 		//                              EVENTS HANDLERS
@@ -163,6 +196,7 @@ public class PanelTabSearch extends JPanel{
 		this.searchButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				System.out.println("Query : " + searchBox.getText());
+				requestAndSaveRetrievedTweets();
 				loadRetrievedTweets();
 			}
 		});
@@ -170,31 +204,39 @@ public class PanelTabSearch extends JPanel{
 		this.searchBox.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				System.out.println("Query : " + searchBox.getText());
+				requestAndSaveRetrievedTweets();
 				loadRetrievedTweets();
 			}
 		});
 		
-		this.sliderBar.addChangeListener(new ChangeListener(){
+		this.sliderBarPR.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent e) {
-				int value = ((JSlider) e.getSource()).getValue();
-				System.out.println(value);
-				reloadRetrievedTweets(value);
+				PageRankGUI.actPagerankMentionPercent = ((JSlider) e.getSource()).getValue();
+				loadRetrievedTweets();
 			}
 		});
 		
+		this.sliderBarTFIDF.addChangeListener(new ChangeListener(){
+			public void stateChanged(ChangeEvent e) {
+				PageRankGUI.actPagerankPercent = ((JSlider) e.getSource()).getValue();
+				loadRetrievedTweets();
+			}
+		});		
 	}
 	
 	/**
-	 * Reload retweets.
-	 * @param value
+	 * Method that sets the corresponding score based on the actPagerankMentionPercent and the
+	 * actPagerankPercent, and then loads the first maxDocumentLoad documents in the JEditorPane.
 	 */
-	 
 	@SuppressWarnings("unchecked")
-	public void reloadRetrievedTweets(int value){
+	public void loadRetrievedTweets(){
+		
+		// If page rank has been set.
+		if (PageRankGUI.pageRankSelected) this.sliderLabel.setText("");
 		
 		// Set the score.
 		for (int i=0; i<PageRankGUI.actTweetsRetrieved.size(); i++)
-		    PageRankGUI.actTweetsRetrieved.get(i).computeFinalScore(value);
+		    PageRankGUI.actTweetsRetrieved.get(i).computeFinalScore();
 		
 		// Reoorder.
 		Collections.sort(PageRankGUI.actTweetsRetrieved);
@@ -204,34 +246,30 @@ public class PanelTabSearch extends JPanel{
 		
 		// Set the content in the JEditorPane.
 		retrievedTweets.setText(content);
+		
+		// Set the number of retrieved.
+		nRetrieved.setText("Retrieved:" + PageRankGUI.actRetrieved);
 	}
 	
 	/**
-	 * Method that loads all the retrieved tweets given a query.
+	 * Method that for a given query, makes a request to the solr and save in the
+	 * static arrayList actRetrievedTweets all the tweets that are part of the 
+	 * response.
 	 */
-	public void loadRetrievedTweets(){
+	public void requestAndSaveRetrievedTweets(){
 		
 		// Get the query.
 		String query = getQuerySelected();
 		String value = getValueSelected();
 		System.out.println(query + "-" + value);
 		
+		// Form the query
+		String formedQuery = "";
+		if (query.equals("")) formedQuery = value;
+		else formedQuery = query + ":" + value;
+		
 		// Save the tweets that matches with the query.
-		HandlerSolr.saveRetrievedTweets(query, value);
-		
-		// Set the score.
-		for (int i=0; i<PageRankGUI.actTweetsRetrieved.size(); i++) {
-			Tweet t = PageRankGUI.actTweetsRetrieved.get(i);
-			t.setFinalScore(t.getTFIDFScore());
-		}
-		
-		String content = HandlerSolr.convertTweetsToHTML();
-		
-		// Set the value of retrieved tweets.
-		nRetrieved.setText("Retrieved:" + PageRankGUI.actRetrieved);
-		
-		// Set the content in the JEditorPane.
-		retrievedTweets.setText(content);
+		HandlerSolr.saveRetrievedTweets(formedQuery);
 	}
 	
 	/**
@@ -241,7 +279,6 @@ public class PanelTabSearch extends JPanel{
 		String query = "";
 		if (checkText.isSelected()) query += "text";
 		if (checkAuthor.isSelected()) query += "+screen_name";
-		if (query.equals("")) query = "text+screen_name";
 		return query;
 	}
 	
@@ -253,6 +290,5 @@ public class PanelTabSearch extends JPanel{
 		if (value.equals("")) value = "*";
 		return value;
 	}	
-	
 }
 

@@ -28,9 +28,12 @@ public class PageRankGUI {
 	public static String actMethod = null;
 	public static String actOption = null;
 	public static String actRetrieved = "0";
+	public static int actPagerankMentionPercent = 50; 
+	public static int actPagerankPercent = 50;
+	public static boolean pageRankSelected = false;
 	
 	// Options to choose for the admin.
-	public static String maxDocumentsRetrieved = "10";
+	public static String maxDocumentsLoad = "10";
 	public static String maxUsersRetrieved = "20";
 	
 	// Storage of the actuals pageranks.
