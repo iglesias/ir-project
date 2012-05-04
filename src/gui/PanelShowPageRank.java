@@ -120,7 +120,7 @@ public class PanelShowPageRank extends JPanel{
 		// Set the pagerank in pagerank retweets.
 		String pathRetweeted = PageRankGUI.rootPath + PageRankGUI.actUniverse + 
         					   PageRankGUI.pagerankRetweetedPath + "/" +
-        		               PageRankGUI.actOption + "/" +  
+        		               //PageRankGUI.actOption + "/" +  
         					   PageRankGUI.actMethod + ".txt";
 		textRetweets.setText(HandlerGUI.getContentRankHTML(pathRetweeted,false));	
 		
