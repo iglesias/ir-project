@@ -92,12 +92,13 @@ public class HandlerGUI {
 	    			// Create the html.
 		    		if (cont<=maxUsers) {
 		    			String photo_url = HandlerSolr.getParameter("profile_url",name);
+		    			String description = HandlerSolr.getParameter("description",name);
 
 						content += "<tr>";
 						content += "<td><img src='" + photo_url + "' width=50 height=50></img></td>";
 						content += "<td align=left valign=top>";
 						content += "<B>" + name + "</B><br>";
-						content += "<I>" + "descripcion" + "</I></td>";
+						content += "<I>" + description + "</I></td>";
 						content += "<td valign=top><font size=2>" + score + "</font></td>";
 						content += "</tr>";	
 						
