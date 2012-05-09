@@ -13,6 +13,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
@@ -23,6 +25,7 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.html.HTMLEditorKit;
 
 import solr.HandlerSolr;
 
@@ -33,12 +36,14 @@ public class PanelTabSearch extends JPanel{
 	/**
 	 * Constants.
 	 */
-	private String[] queryTypes = {"Contains one", "Contains all", "Phrase query"}; 
+	private String[] queryTypes = {"one", "all", "phrase"}; 
 	
 	/**
 	 * Create Elements as attributes.
 	 */
 	private JTextField searchBox;
+	private JButton searchButton;
+	@SuppressWarnings("rawtypes")
 	private JComboBox queryComboBox;
 	private JLabel nRetrieved;
 	private JEditorPane retrievedTweets;
@@ -50,15 +55,18 @@ public class PanelTabSearch extends JPanel{
 		
 	private JPanel checkPanel;
 	private JCheckBox checkAuthor;
+	@SuppressWarnings("unused")
 	private JCheckBox checkHashtag;
 	private JCheckBox checkDescription;
 	private JCheckBox checkText;
 	
+	@SuppressWarnings({ "unchecked", "rawtypes", "static-access" })
 	public PanelTabSearch(){
 		// ----------------------------------------------------------------------------
 		//                          CREATE THE COMPONENTS
 		// ----------------------------------------------------------------------------
 		searchBox = new JTextField("Query...");
+		searchButton = new JButton(new ImageIcon(PageRankGUI.iconPath));
 		queryComboBox = new JComboBox(queryTypes);
 		nRetrieved = new JLabel("Retrieved:" + PageRankGUI.actRetrieved);
 		retrievedTweets = new JEditorPane("text/html","");
@@ -70,14 +78,11 @@ public class PanelTabSearch extends JPanel{
 		
 		// ----------------------------------------------------------------------------
 		//                            SOME CONFIGURATIONS
-		// ----------------------------------------------------------------------------
-		sliderBarPR.setMinimumSize(new Dimension(200,20));
-		sliderBarTFIDF.setMinimumSize(new Dimension(200,20));
-		sliderBarPR.setMaximumSize(new Dimension(200,20));
-		sliderBarTFIDF.setMaximumSize(new Dimension(200,20));
-
+		// ----------------------------------------------------------------------------	
+		// Query selector.
 		queryComboBox.setSelectedIndex(0);
 		
+		// Check boxes.
 		checkPanel = new JPanel();
 		checkAuthor = new JCheckBox("Author");
 		checkHashtag = new JCheckBox("Hashtag");
@@ -87,7 +92,12 @@ public class PanelTabSearch extends JPanel{
 		checkPanel.add(checkText);
 		checkPanel.add(checkDescription);
 		//checkPanel.add(checkHashtag);
-		
+
+		// Slider bars.
+		sliderBarPR.setMinimumSize(new Dimension(200,20));
+		sliderBarTFIDF.setMinimumSize(new Dimension(200,20));
+		sliderBarPR.setMaximumSize(new Dimension(200,20));
+		sliderBarTFIDF.setMaximumSize(new Dimension(200,20));
 		sliderBarPR.setEnabled(false);
 		sliderBarTFIDF.setEnabled(false);
 				
@@ -98,14 +108,7 @@ public class PanelTabSearch extends JPanel{
 		
 		// ----------------------------------------------------------------------------
 		//                         DEFINE GRIDBAGCONSTRAINTS
-		// ----------------------------------------------------------------------------
-		GridBagConstraints infoIcon = new GridBagConstraints();
-		infoIcon.insets = new Insets(3,3,3,3); 
-		infoIcon.gridx = 0;
-		infoIcon.gridy = 0;
-		infoIcon.weightx = 1.0;
-		infoIcon.weighty = 1.0;
-		
+		// ----------------------------------------------------------------------------		
 		GridBagConstraints infoSearchBox = new GridBagConstraints();
 		infoSearchBox.insets = new Insets(20,50,3,0);
 		infoSearchBox.gridx = 0;
@@ -115,9 +118,16 @@ public class PanelTabSearch extends JPanel{
 		infoSearchBox.fill = GridBagConstraints.BOTH;
 		infoSearchBox.gridwidth = 2;
 		
+		GridBagConstraints infoSearchButton = new GridBagConstraints();
+		infoSearchButton.insets = new Insets(20,0,3,3);
+		infoSearchButton.gridx = 2;
+		infoSearchButton.gridy = 1;
+		infoSearchButton.weightx = 0.0;
+		infoSearchButton.weighty = 0.0;
+		
 		GridBagConstraints infoQueryComboBox = new GridBagConstraints();
 		infoQueryComboBox.insets = new Insets(20,0,3,20);
-		infoQueryComboBox.gridx = 2;
+		infoQueryComboBox.gridx = 3;
 		infoQueryComboBox.gridy = 1;
 		infoQueryComboBox.weightx = 0.0;
 		infoQueryComboBox.weighty = 0.0;
@@ -131,7 +141,7 @@ public class PanelTabSearch extends JPanel{
 		infoCheckPanel.gridwidth = 3;
 		infoCheckPanel.anchor = GridBagConstraints.CENTER;
 		infoCheckPanel.fill = GridBagConstraints.CENTER;
-		infoCheckPanel.gridwidth = 3;
+		infoCheckPanel.gridwidth = 4;
 		
 		GridBagConstraints infonRetrieved = new GridBagConstraints();
 		infonRetrieved.insets = new Insets(0,0,2,0);
@@ -147,7 +157,7 @@ public class PanelTabSearch extends JPanel{
 		infoScroll.weightx = 1.0;
 		infoScroll.weighty = 1.0;
 		infoScroll.fill = GridBagConstraints.BOTH;
-		infoScroll.gridwidth = 3;
+		infoScroll.gridwidth = 4;
 		
 		GridBagConstraints infoSliderBarPR = new GridBagConstraints();
 		infoSliderBarPR.insets = new Insets(3,3,3,3);
@@ -172,12 +182,14 @@ public class PanelTabSearch extends JPanel{
 		infoSliderLabel.weightx = 0.0;
 		infoSliderLabel.weighty = 0.0;
 		infoSliderLabel.anchor = GridBagConstraints.WEST;
+		infoSliderLabel.gridwidth = 2;
 		
 		// ----------------------------------------------------------------------------
 		//                    ADD THE COMPONENTS TO THE CONTAINER
 		// ----------------------------------------------------------------------------
 		//this.add(icon,infoIcon);
 		this.add(searchBox,infoSearchBox);
+		this.add(searchButton,infoSearchButton);
 		this.add(queryComboBox,infoQueryComboBox);
 		this.add(checkPanel,infoCheckPanel);
 		this.add(nRetrieved,infonRetrieved);
@@ -190,6 +202,14 @@ public class PanelTabSearch extends JPanel{
 		//                              EVENTS HANDLERS
 		// ----------------------------------------------------------------------------			
 		this.searchBox.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				System.out.println("Query : " + searchBox.getText());
+				requestAndSaveRetrievedTweets();
+				loadRetrievedTweets();
+			}
+		});
+		
+		this.searchButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				System.out.println("Query : " + searchBox.getText());
 				requestAndSaveRetrievedTweets();
@@ -238,7 +258,11 @@ public class PanelTabSearch extends JPanel{
 		String content = HandlerSolr.convertTweetsToHTML();
 		
 		// Set the content in the JEditorPane.
-		retrievedTweets.setText(content);
+		try {
+			retrievedTweets.setText(content);
+		} catch (Exception e){
+			System.out.println("Image error!");
+		}
 		
 		// Set the number of retrieved.
 		nRetrieved.setText("Retrieved:" + PageRankGUI.actRetrieved);
