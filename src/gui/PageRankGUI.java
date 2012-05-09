@@ -21,7 +21,7 @@ public class PageRankGUI {
 	public static String pagerankMentionedPath = "/pagerank/mentioned/";
 	public static String pagerankRetweetedPath = "/pagerank/retweeted/";
 	public static String blackListPath = "./data/blacklist.txt";
-	public static String iconPath = "./images/twitter_bird.png";
+	public static String iconPath = "./images/searchicon.jpg";
 	
 	// Options selected by user.
 	public static String actUniverse = null;
