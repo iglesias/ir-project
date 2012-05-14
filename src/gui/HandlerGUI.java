@@ -1,5 +1,4 @@
 /***********************************************************************
- *                                                                     *
  * @author Bernard Hernandez Perez                                     *
  ***********************************************************************/
 
@@ -94,13 +93,14 @@ public class HandlerGUI {
 		    			String photo_url = HandlerSolr.getParameter("profile_url",name);
 		    			String description = HandlerSolr.getParameter("description",name);
 
-						content += "<tr>";
+						content += "<tr valign=top>";
 						content += "<td><img src='" + photo_url + "' width=50 height=50></img></td>";
-						content += "<td align=left valign=top>";
-						content += "<B>" + name + "</B><br>";
-						content += "<I>" + description + "</I></td>";
-						content += "<td valign=top><font size=2>" + score + "</font></td>";
+						content += "<td><B>" + name + "</B><br>";
+						content += "<I><font size=2>" + description + "</font></I></td>";
+						content += "<td valign=top><font size=2>" + score.substring(0,8) + "</font></td>";
 						content += "</tr>";	
+						
+						//<div><span style="float:right">texto a la derecha</span>texto a la izquierda</div>
 						
 						cont++;
 		    		}

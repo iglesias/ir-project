@@ -1,5 +1,4 @@
 /***********************************************************************
- *                                                                     *
  * @author Bernard Hernandez Perez                                     *
  ***********************************************************************/
 
@@ -11,7 +10,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
@@ -22,9 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 
 @SuppressWarnings("serial")
 public class PanelBlackList extends JPanel{
@@ -48,6 +43,7 @@ public class PanelBlackList extends JPanel{
 	 * Management of elements.
 	 */
 	private DefaultListModel<String> listModel;  // Management of elements.
+	@SuppressWarnings("unused")
 	private ListSelectionModel selectionModel;   // Management of selected elements.
 	
     public PanelBlackList(){

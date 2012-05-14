@@ -12,10 +12,7 @@ public class PageRankGUI {
 
 	/**
 	 * Static variables.
-	 */
-	// Limit.
-	public static String maxRetrieved = "1000";
-	
+	 */	
 	// Paths.
 	public static String rootPath = "./data/";    
 	public static String pagerankMentionedPath = "/pagerank/mentioned/";
@@ -35,6 +32,7 @@ public class PageRankGUI {
 	// Options to choose for the admin.
 	public static String maxDocumentsLoad = "10";
 	public static String maxUsersRetrieved = "20";
+	public static String maxSolrRetrieved = "1000";
 	
 	// Storage of the actuals pageranks.
 	public static HashMap<String,Double> pagerankScoresMention = new HashMap<String,Double>();
