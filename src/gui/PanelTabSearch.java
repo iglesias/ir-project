@@ -1,5 +1,4 @@
 /***********************************************************************
- *                                                                     *
  * @author Bernard Hernandez Perez                                     *
  ***********************************************************************/
 
@@ -25,7 +24,6 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.html.HTMLEditorKit;
 
 import solr.HandlerSolr;
 
@@ -237,7 +235,7 @@ public class PanelTabSearch extends JPanel{
 				PageRankGUI.actPagerankPercent = ((JSlider) e.getSource()).getValue();
 				loadRetrievedTweets();
 			}
-		});		
+		});	
 	}
 	
 	/**
@@ -258,11 +256,7 @@ public class PanelTabSearch extends JPanel{
 		String content = HandlerSolr.convertTweetsToHTML();
 		
 		// Set the content in the JEditorPane.
-		try {
-			retrievedTweets.setText(content);
-		} catch (Exception e){
-			System.out.println("Image error!");
-		}
+		retrievedTweets.setText(content);
 		
 		// Set the number of retrieved.
 		nRetrieved.setText("Retrieved:" + PageRankGUI.actRetrieved);

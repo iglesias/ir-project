@@ -1,5 +1,4 @@
 /***********************************************************************
- *                                                                     *
  * @author Bernard Hernandez Perez                                     *
  ***********************************************************************/
 
@@ -48,7 +47,7 @@ public class PanelShowPageRank extends JPanel{
 		textRetweets.setEditable(false);
 		
 		JScrollPane scrollTweets = new JScrollPane(textTweets);
-		JScrollPane scrollRetweets = new JScrollPane(textRetweets);
+		JScrollPane scrollRetweets = new JScrollPane(textRetweets);		
 		
 		// ----------------------------------------------------------------------------
 		//                        DEFINE LAYOUT ADMINISTRATOR

@@ -1,8 +1,10 @@
 /***********************************************************************
- *                                                                     *
  * @author Bernard Hernandez Perez                                     *
  ***********************************************************************/
+
 package gui;
+
+import java.text.DecimalFormat;
 
 @SuppressWarnings("rawtypes")
 public class Tweet implements Comparable{
@@ -18,6 +20,8 @@ public class Tweet implements Comparable{
 	private Double pagerankRetweetScore = null;
 	
 	private Double finalScore = 0.0;
+	
+	private DecimalFormat df = new DecimalFormat("#0.00000000");
 	
 	/**
 	 * Constructor.
@@ -77,7 +81,7 @@ public class Tweet implements Comparable{
 		}
 		
 		// Calculate the score between Pagerank vs TFIDF.
-		this.finalScore = (1-pagerankPercent)*score1 + (pagerankPercent*this.tfidfScore);
+		this.finalScore = (1-pagerankPercent)*score1 + (pagerankPercent*this.tfidfScore*0.001);
 	}
 	
 	/**
@@ -89,7 +93,7 @@ public class Tweet implements Comparable{
 		content += "<td align=left valign=top>";
 		content += "<B>" + this.author + "</B><br>";
 		content += "<I>" + this.text + "</I></td>";
-		content += "<td valign=top><font size=2>" + this.finalScore + "</font></td>";
+		content += "<td valign=top><font size=2>" + df.format(this.finalScore) + "</font></td>";
 		content += "</tr>";
 		return content;
 	}

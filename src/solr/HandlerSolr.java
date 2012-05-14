@@ -1,3 +1,7 @@
+/***********************************************************************
+ * @author Bernard Hernandez Perez                                     *
+ ***********************************************************************/
+
 package solr;
 
 import gui.PageRankGUI;
@@ -19,6 +23,9 @@ public class HandlerSolr {
 	
 	public final static boolean DEBUG = false;
 	
+	public final static String default_photo =
+			"https://twimg0-a.akamaihd.net/sticky/default_profile_images/default_profile_3_normal.png";
+	
 	/**
 	 * Method that given the parameters of a query, store in the static variable
 	 * actTweetsRetrieved the first maxDocumentsRetrieved tweets that  solr give
@@ -39,7 +46,7 @@ public class HandlerSolr {
 			// Get response information in json format.
 			URL url = new URL("http://localhost:8983/solr/select?" +
 			                  "q=" + formedQuery + "&wt=json" +
-					          "&rows=" + PageRankGUI.maxRetrieved + 
+					          "&rows=" + PageRankGUI.maxSolrRetrieved + 
 					          "&fl=*,score&sort=score%20desc" + "&indent=true");
 			BufferedReader urlInput = new BufferedReader(new InputStreamReader(url.openStream()));      	
 	    	
@@ -129,7 +136,7 @@ public class HandlerSolr {
 	 * Method that given the parameters of a query return the objects.
 	 * If the user doesnt exist and the parameters is:
 	 *   - photo : default_photo.
-	 *   - description : Is not a follower.
+	 *   - description : "No retrieved".
 	 */
 	public static String getParameter(String parameter, String user){
 		try {			
@@ -155,12 +162,12 @@ public class HandlerSolr {
 			if (jArray.length()>0)
 				return (String) jArray.getJSONObject(0).get(parameter);
 			else
-				return "https://twimg0-a.akamaihd.net/sticky/default_profile_images/default_profile_3_normal.png";
+				return default_photo;
 		
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-		return "No retrieved documents";
+		return "No retrieved.";
 	}
 	
 	public static void main(String[] args){	
