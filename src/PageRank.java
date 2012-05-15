@@ -664,7 +664,7 @@ public class PageRank{
      *
      * Execute : PageRank <PathGraphFile> <PathPageRankFile> <Mode>
      *           Mode : 0 (powerIteration)
-     *                  1-5 (MonteCarlo(i))
+     *                  1-5 (MonteCarlo(i)) 
      */
     public static void main( String[] args ) {
     	if ( args.length < 3 ) {
