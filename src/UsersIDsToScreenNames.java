@@ -36,7 +36,7 @@ public class UsersIDsToScreenNames {
 	/**
 	 * Show some debugging information
 	 */
-	public static final boolean DEBUG_OUT = false;
+	public static final boolean DEBUG_OUT = true;
 
 	public static void main(String[] args) {
 

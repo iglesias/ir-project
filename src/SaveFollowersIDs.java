@@ -17,7 +17,7 @@ public class SaveFollowersIDs {
 	/**
 	 * Twitter's screen_name to retrieve followers from
 	 */
-	public static final String FOLLOWING = "BowieState";
+	public static final String FOLLOWING = "Nando_jig";
 	
 	/**
 	 * Show some debugging information
