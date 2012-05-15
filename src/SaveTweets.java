@@ -56,7 +56,7 @@ public class SaveTweets {
 	/**
 	 * Important directories.
 	 */
-	public static String universeDirectory = "TwitterPageRank/data/";
+	public static String universeDirectory = "./data/";
 	
 	/**
 	 * Show some debugging information
