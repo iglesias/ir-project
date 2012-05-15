@@ -162,7 +162,10 @@ public class HandlerSolr {
 			if (jArray.length()>0)
 				return (String) jArray.getJSONObject(0).get(parameter);
 			else
-				return default_photo;
+				if (parameter.equals("description"))
+					return "description not available.";
+				else
+					return default_photo;
 		
 		} catch (Exception e){
 			e.printStackTrace();
