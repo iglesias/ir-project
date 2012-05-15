@@ -667,9 +667,10 @@ public class PageRank{
      *                  1-5 (MonteCarlo(i))
      */
     public static void main( String[] args ) {
-    	if ( args.length < 3 ) 
-    	    System.err.println( "Execute : PageRank <PathGraphFile> <PathPageRankFile> <Mode(0,1,2,3,4,5)> (debug)*" );
-        else  
+    	if ( args.length < 3 ) {
+    	    System.err.println( "Execute : PageRank <PathGraphFile> <PathPageRankFile> <Mode(0,1,2,3,4,5)> debug" );
+    	    System.err.println( "Execute : PageRank <PathGraphFile> <PathPageRankFile> <Mode(0,1,2,3,4,5)> <followersFile>");
+    	} else  
             if ( args.length == 3)                                          // If three arguments
             	new PageRank(args[0],args[1],Integer.parseInt(args[2]));         // Execute noDEBUG.
             else {                                                           // If more than three
